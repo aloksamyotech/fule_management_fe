@@ -20,7 +20,7 @@ import { toast } from 'react-toastify';
 import { FormLabel } from '@mui/material';
 
 const AddPumps = (props) => {
-  const { open, handleClose } = props;
+  const { open, handleClose, fetchPumpData } = props;
   const [fuelData, setFuelData] = useState([]);
 
   // -----------  validationSchema
@@ -52,6 +52,7 @@ const AddPumps = (props) => {
         toast.success('Order added successfully');
         formik.resetForm();
         handleClose();
+        fetchPumpData();
       } catch (error) {
         console.error('Error adding order:', error);
         toast.error('Failed to add Order');

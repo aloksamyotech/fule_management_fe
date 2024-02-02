@@ -46,7 +46,7 @@ const Pump = () => {
 
   return (
     <>
-      <AddPumps open={openAdd} handleClose={handleCloseAdd} />
+      <AddPumps open={openAdd} handleClose={handleCloseAdd} fetchPumpData={fetchPumpData} />
       <Container>
         <Stack direction="row" alignItems="center" mb={5} justifyContent={'space-between'}>
           <Typography variant="h4">PUMP-MANAGEMENT</Typography>
