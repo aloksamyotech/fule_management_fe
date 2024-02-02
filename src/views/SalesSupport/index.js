@@ -108,7 +108,7 @@ const ViewDuty = () => {
         <DialogContentText id="scroll-dialog-description" tabIndex={-1}>
           <Stack direction="row" alignItems="center" mb={5} justifyContent="space-between">
             <Typography style={{ marginBottom: '15px' }} variant="h6">
-              <h1>VIEW DUTY HISTORY DETAILS</h1>
+              <h1>VIEW SALES HISTORY</h1>
             </Typography>{' '}
             <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={2}>
               {/* <Button variant="contained" component={Link} to="/management/assignDuty">

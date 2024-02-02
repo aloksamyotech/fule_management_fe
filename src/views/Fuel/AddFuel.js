@@ -1,5 +1,4 @@
-/* eslint-disable react/prop-types */
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import { FormControl, FormHelperText, FormLabel, Grid, MenuItem, Select, TextField } from '@mui/material';
@@ -11,45 +10,46 @@ import Typography from '@mui/material/Typography';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { toast } from 'react-toastify';
-import Palette from '../../ui-component/ThemePalette';
-import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { apiurls } from 'Service/api';
-
+import { toast } from 'react-toastify';
 const AddLead = (props) => {
   const { open, handleClose } = props;
-
   const [fuelData, setFuelData] = useState([]);
   const [supplierData, setSupplierData] = useState([]);
-
   const validationSchema = yup.object({
     fuel: yup.string().required('Fuel Type is required'),
     supplier: yup.string().required('Supplier Name is required'),
     cost: yup.string().required('Cost is required'),
-    dateOfBirth: yup.date().required('Date of Birth is required'),
     liters: yup.string().required('Liters is required')
   });
-
   const initialValues = {
     fuel: '',
     supplier: '',
     cost: '',
     liters: ''
   };
-
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      console.log('==========>> ', values);
+      console.log(values);
+      try {
+        const response = await axios.post(apiurls?.addOrder, values);
+
+        console.log('API response:', response.data);
+        toast.success('Order added successfully');
+        formik.resetForm();
+        handleClose();
+      } catch (error) {
+        console.error('Error adding order:', error);
+        toast.error('Failed to add Order');
+      }
     }
   });
-
   const fetchSupplierData = async () => {
     try {
       const response = await axios.get(apiurls?.supplierList);
-
       const data = response.data.map((item) => ({
         supplier: item?.name,
         id: item?._id
@@ -59,11 +59,9 @@ const AddLead = (props) => {
       console.error('Error fetching supplier data:', error);
     }
   };
-
   const fetchFuelData = async () => {
     try {
       const response = await axios.get(apiurls?.fuelList);
-
       const data = response.data.map((item) => ({
         name: item?.fuel_type,
         qty: item?.litres,
@@ -75,12 +73,10 @@ const AddLead = (props) => {
       console.error('Error fetching fuel data:', error);
     }
   };
-
   useEffect(() => {
     fetchFuelData();
     fetchSupplierData();
   }, []);
-
   return (
     <div>
       <Dialog open={open} onClose={handleClose} aria-labelledby="scroll-dialog-title" aria-describedby="scroll-dialog-description">
@@ -93,7 +89,7 @@ const AddLead = (props) => {
           </Typography>
         </DialogTitle>
         <DialogContent dividers>
-          <form>
+          <form onSubmit={formik.handleSubmit}>
             <DialogContentText id="scroll-dialog-description" tabIndex={-1}>
               <Typography style={{ marginBottom: '15px' }} variant="h6">
                 <h1>Enter Order Details</h1>
@@ -109,19 +105,18 @@ const AddLead = (props) => {
                       label=""
                       size="small"
                       fullWidth
-                      value={formik.values.fuel || ''}
+                      value={formik.values.fuel}
                       onChange={formik.handleChange}
                       error={formik.touched.fuel && Boolean(formik.errors.fuel)}
-                      helperText={formik.touched.fuel && formik.errors.fuel}
                     >
                       {fuelData &&
                         fuelData.map((item) => (
-                          <MenuItem key={item.id} value={item.name}>
+                          <MenuItem key={item.id} value={item.id}>
                             {item.name}
                           </MenuItem>
                         ))}
                     </Select>
-                    <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.fuel && formik.errors.fuel}</FormHelperText>
+                    <FormHelperText error>{formik.errors.fuel}</FormHelperText>
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
@@ -132,19 +127,18 @@ const AddLead = (props) => {
                     label=""
                     size="small"
                     fullWidth
-                    value={formik.values.supplier || ''}
+                    value={formik.values.supplier}
                     onChange={formik.handleChange}
                     error={formik.touched.supplier && Boolean(formik.errors.supplier)}
-                    helperText={formik.touched.supplier && formik.errors.supplier}
                   >
                     {supplierData &&
                       supplierData.map((item) => (
-                        <MenuItem key={item.id} value={item.supplier}>
+                        <MenuItem key={item.id} value={item.id}>
                           {item.supplier}
                         </MenuItem>
                       ))}
                   </Select>
-                  <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.supplier && formik.errors.supplier}</FormHelperText>
+                  <FormHelperText error>{formik.errors.supplier}</FormHelperText>
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Total Liters</FormLabel>
@@ -157,8 +151,8 @@ const AddLead = (props) => {
                     value={formik.values.liters}
                     onChange={formik.handleChange}
                     error={formik.touched.liters && Boolean(formik.errors.liters)}
-                    helperText={formik.touched.liters && formik.errors.liters}
                   />
+                  <FormHelperText error>{formik.errors.liters}</FormHelperText>
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Total Cost</FormLabel>
@@ -171,32 +165,30 @@ const AddLead = (props) => {
                     value={formik.values.cost}
                     onChange={formik.handleChange}
                     error={formik.touched.cost && Boolean(formik.errors.cost)}
-                    helperText={formik.touched.cost && formik.errors.cost}
                   />
+                  <FormHelperText error>{formik.errors.cost}</FormHelperText>
                 </Grid>
               </Grid>
             </DialogContentText>
+            <DialogActions>
+              <Button type="submit" variant="contained" color="primary">
+                Save
+              </Button>
+              <Button
+                onClick={() => {
+                  formik.resetForm();
+                  handleClose();
+                }}
+                variant="outlined"
+                color="error"
+              >
+                Cancel
+              </Button>
+            </DialogActions>
           </form>
-
-          <DialogActions>
-            <Button onClick={formik.handleSubmit} type="submit" variant="contained" color="primary">
-              Save
-            </Button>
-            <Button
-              onClick={() => {
-                formik.resetForm();
-                handleClose();
-              }}
-              variant="outlined"
-              color="error"
-            >
-              Cancel
-            </Button>
-          </DialogActions>
         </DialogContent>
       </Dialog>
     </div>
   );
 };
-
 export default AddLead;

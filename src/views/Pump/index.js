@@ -9,66 +9,40 @@ import Iconify from '../../ui-component/iconify';
 import AddPumps from './AddPump';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
+import { useEffect } from 'react';
+import { apiurls } from 'Service/api';
+import axios from 'axios';
 // ----------------------------------------------------------------------
 
-const pumpData = [
-  {
-    id: 1,
-    pumpCode: 'Auto Insurance',
-    pumpDesc: 'jonny petter',
-    fuelType: 'jhon Dear',
-    date: 'sender',
-    status: 'ACTIVE',
-    action: 'Edit'
-  }
-];
 const Pump = () => {
   const [openAdd, setOpenAdd] = useState(false);
-  const columns = [
-    {
-      field: 'pumpCode',
-      headerName: 'PUMP CODE',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'pumpDesc',
-      headerName: 'PUMP DESC',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'fuelType',
-      headerName: 'FUEL TYPE',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'date',
-      headerName: 'DATE',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'status',
-      headerName: 'STATUS',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'action',
-      headerName: 'ACTION',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      renderCell: (params) => (
-        <IconButton color="primary" onClick={() => handleEdit(params.row.id)}>
-          <EditIcon />
-        </IconButton>
-      )
-    }
-  ];
+  const [pumpData, setPumpData] = useState([]);
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => setOpenAdd(false);
+
+  const fetchPumpData = async () => {
+    try {
+      const response = await axios.get(apiurls?.getPump);
+      console.log(response);
+      const data = response.data.map((item) => {
+        return {
+          pumpCode: item?.code,
+          pumpDesc: item?.desc,
+          status: item?.status,
+          fuelType: item?.fuel.fuel_type,
+          date: item?.created_at,
+          id: item?._id
+        };
+      });
+      setPumpData(data);
+    } catch (error) {
+      console.error('Error fetching fuel data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPumpData();
+  }, []);
 
   return (
     <>
@@ -86,8 +60,50 @@ const Pump = () => {
           <Box width="100%">
             <Card style={{ height: '600px', paddingTop: '15px' }}>
               <DataGrid
-                rows={pumpData}
-                columns={columns}
+                rows={pumpData && pumpData}
+                columns={[
+                  {
+                    field: 'pumpCode',
+                    headerName: 'PUMP CODE',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize'
+                  },
+                  {
+                    field: 'pumpDesc',
+                    headerName: 'PUMP DESC',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize'
+                  },
+                  {
+                    field: 'fuelType',
+                    headerName: 'FUEL TYPE',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize'
+                  },
+                  {
+                    field: 'date',
+                    headerName: 'DATE',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize'
+                  },
+                  {
+                    field: 'status',
+                    headerName: 'STATUS',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize'
+                  },
+                  {
+                    field: 'action',
+                    headerName: 'ACTION',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize',
+                    renderCell: (params) => (
+                      <IconButton color="primary">
+                        <EditIcon />
+                      </IconButton>
+                    )
+                  }
+                ]}
                 getRowId={(row) => row.id}
                 slots={{ toolbar: GridToolbar }}
                 slotProps={{ toolbar: { showQuickFilter: true } }}

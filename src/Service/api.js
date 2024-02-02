@@ -8,5 +8,10 @@ export const apiurls = {
   supplierList: pmsUrl + 'supplier/getalldetails',
 
   //Order Api
-  addOrder: pmsUrl + 'order/details'
+  addOrder: pmsUrl + 'order/details',
+  getOrder: pmsUrl + 'order/getAllDetails',
+
+  //Pump Api
+  addPump: pmsUrl + 'add/pump',
+  getPump: pmsUrl + 'pump/getalldetails'
 };

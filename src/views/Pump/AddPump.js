@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -14,15 +14,14 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { FormControl, FormHelperText, MenuItem, Select } from '@mui/material';
 import Palette from '../../ui-component/ThemePalette';
-
-// import { apipost } from "src/service/api";
+import axios from 'axios';
+import { apiurls } from 'Service/api';
 import { toast } from 'react-toastify';
 import { FormLabel } from '@mui/material';
 
 const AddPumps = (props) => {
   const { open, handleClose } = props;
-
-  //   const user = JSON.parse(localStorage.getItem('user'));
+  const [fuelData, setFuelData] = useState([]);
 
   // -----------  validationSchema
   const validationSchema = yup.object({
@@ -38,38 +37,48 @@ const AddPumps = (props) => {
     pump: '',
     desc: '',
     code: ''
-    // lead_id: _id,
-    // contact_id: _id,
-    // createdBy: user?._id,
-    // policy_id: _id
   };
 
-  // add claim api
-  //   const addClaim = async (values) => {
-  //     const data = values;
-  //     const result = await apipost('email/add', data);
-  //     setUserAction(result);
-
-  //     if (result && result.status === 201) {
-  //       handleClose();
-  //       formik.resetForm();
-  //       toast.success(result.data.message);
-  //     }
-  //   };
-  // formik
   const formik = useFormik({
     initialValues,
     validationSchema,
     enableReinitialize: true,
-    onSubmit: async (values, { resetForm }) => {
-      // addClaim(values);
-      console.log('EmailValues', values);
-      handleClose();
-      formik.resetForm();
-      toast.success('Email Add successfully');
-      resetForm();
+    onSubmit: async (values) => {
+      console.log(values);
+      try {
+        const response = await axios.post(apiurls?.addPump, values);
+
+        console.log('API response:', response.data);
+        toast.success('Order added successfully');
+        formik.resetForm();
+        handleClose();
+      } catch (error) {
+        console.error('Error adding order:', error);
+        toast.error('Failed to add Order');
+      }
     }
   });
+  const fetchFuelData = async () => {
+    try {
+      const response = await axios.get(apiurls?.fuelList);
+
+      const data = response.data.map((item) => {
+        return {
+          name: item?.fuel_type,
+          qty: item?.litres,
+          status: item?.status,
+          id: item?._id
+        };
+      });
+      setFuelData(data);
+    } catch (error) {
+      console.error('Error fetching fuel data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFuelData();
+  }, []);
 
   return (
     <div>
@@ -92,7 +101,7 @@ const AddPumps = (props) => {
         </DialogTitle>
 
         <DialogContent dividers>
-          <form>
+          <form onSubmit={formik.handleSubmit}>
             <DialogContentText id="scroll-dialog-description" tabIndex={-1}>
               <Typography style={{ marginBottom: '15px' }} variant="h6">
                 <h1>Enter Pump Details</h1>
@@ -108,15 +117,17 @@ const AddPumps = (props) => {
                       label=""
                       size="small"
                       fullWidth
-                      value={formik.values.fuel || null}
+                      value={formik.values.fuel}
                       onChange={formik.handleChange}
                       error={formik.touched.fuel && Boolean(formik.errors.fuel)}
                       helperText={formik.touched.fuel && formik.errors.fuel}
                     >
-                      <MenuItem value="Petrol">Petrol</MenuItem>
-                      <MenuItem value="Diesel">Diesel </MenuItem>
-                      <MenuItem value="Gas">Gas </MenuItem>
-                      <MenuItem value="Kerosene">Kerosene </MenuItem>
+                      {fuelData &&
+                        fuelData.map((item) => (
+                          <MenuItem key={item.id} value={item.id}>
+                            {item.name}
+                          </MenuItem>
+                        ))}
                     </Select>
                     <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.fuel && formik.errors.fuel}</FormHelperText>
                   </FormControl>
@@ -134,10 +145,10 @@ const AddPumps = (props) => {
                     error={formik.touched.pump && Boolean(formik.errors.pump)}
                     helperText={formik.touched.pump && formik.errors.pump}
                   >
-                    <MenuItem value="ACTIVE">ACTIVE</MenuItem>
-                    <MenuItem value="Pending">Pending</MenuItem>
-                    <MenuItem value="Damaged">Damaged</MenuItem>
-                    <MenuItem value="Faulty">Faulty</MenuItem>
+                    <MenuItem value="active">Active</MenuItem>
+                    <MenuItem value="pending">Pending</MenuItem>
+                    <MenuItem value="damaged">Damaged</MenuItem>
+                    <MenuItem value="faulty">Faulty</MenuItem>
                   </Select>
                   <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.pump && formik.errors.pump}</FormHelperText>
                 </Grid>
@@ -169,26 +180,27 @@ const AddPumps = (props) => {
                   />
                 </Grid>
               </Grid>
-            </DialogContentText>{' '}
+            </DialogContentText>
+
+            <DialogActions>
+              <Button type="submit" variant="contained" style={{ textTransform: 'capitalize' }} color="secondary">
+                Save
+              </Button>
+              <Button
+                type="reset"
+                variant="outlined"
+                style={{ textTransform: 'capitalize' }}
+                onClick={() => {
+                  formik.resetForm();
+                  handleClose();
+                }}
+                color="error"
+              >
+                Cancel
+              </Button>
+            </DialogActions>
           </form>
         </DialogContent>
-        <DialogActions>
-          <Button type="submit" variant="contained" onClick={formik.handleSubmit} style={{ textTransform: 'capitalize' }} color="secondary">
-            Save
-          </Button>
-          <Button
-            type="reset"
-            variant="outlined"
-            style={{ textTransform: 'capitalize' }}
-            onClick={() => {
-              formik.resetForm();
-              handleClose();
-            }}
-            color="error"
-          >
-            Cancel
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   );
