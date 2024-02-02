@@ -38,7 +38,7 @@ const AddLead = (props) => {
         const response = await axios.post(apiurls?.addOrder, values);
 
         console.log('API response:', response.data);
-        toast.success('Order added successfully');
+        toast.success('Order added successfully', { autoClose: 600 });
         formik.resetForm();
         handleClose();
       } catch (error) {

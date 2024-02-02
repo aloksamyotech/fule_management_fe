@@ -48,8 +48,9 @@ const AddPumps = (props) => {
       try {
         const response = await axios.post(apiurls?.addPump, values);
 
-        console.log('API response:', response.data);
-        toast.success('Order added successfully');
+        toast.success('Order added successfully', {
+          autoClose: 600
+        });
         formik.resetForm();
         handleClose();
         fetchPumpData();
