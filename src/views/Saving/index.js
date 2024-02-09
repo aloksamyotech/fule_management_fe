@@ -1,60 +1,47 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // @mui
 import { Stack, Button, Container, Typography, Box, Card } from '@mui/material';
 import TableStyle from '../../ui-component/TableStyle';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-
 import Iconify from '../../ui-component/iconify';
 import SavingList from './AddSaving.js';
+import { apiurls } from 'Service/api';
+import axios from 'axios';
 
 // ----------------------------------------------------------------------
 
-const leadData = [
-  {
-    id: 1,
-    sn: '1',
-    amount: '55,000.00',
-    bankDesc: 'SBI',
-    shortNote: 'Fifty Five Thousand rupees Only ',
-    date: 'Tue 15th March 2022'
-  }
-];
 const SavingData = () => {
   const [openAdd, setOpenAdd] = useState(false);
-  const columns = [
-    {
-      field: 'sn',
-      headerName: 'S/N',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'amount',
-      headerName: 'AMOUNT',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'bankDesc',
-      headerName: 'BANK DESC',
-      flex: 1
-    },
-    {
-      field: 'shortNote',
-      headerName: 'SHORT NOTE',
-      flex: 1
-    },
-    {
-      field: 'date',
-      headerName: 'DATE',
-      flex: 1
-    }
-  ];
-
+  const [savingData, setSavingData] = useState([]);
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => setOpenAdd(false);
+
+  const fetchSavingData = async () => {
+    try {
+      const response = await axios.get(apiurls?.getSaving);
+      console.log(response);
+      const data = response.data.map((item) => {
+        return {
+          amount: item?.amount,
+          bankDesc: item?.bank,
+          status: item?.status,
+          shortNote: item?.note,
+          date: item?.created_at,
+          id: item?._id
+        };
+      });
+      setSavingData(data);
+    } catch (error) {
+      console.error('Error fetching fuel data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSavingData();
+  }, []);
+
   return (
     <>
       <SavingList open={openAdd} handleClose={handleCloseAdd} />
@@ -71,8 +58,30 @@ const SavingData = () => {
           <Box width="100%">
             <Card style={{ height: '600px', paddingTop: '15px' }}>
               <DataGrid
-                rows={leadData}
-                columns={columns}
+                rows={savingData && savingData}
+                columns={[
+                  {
+                    field: 'amount',
+                    headerName: 'AMOUNT',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize'
+                  },
+                  {
+                    field: 'bankDesc',
+                    headerName: 'BANK DESC',
+                    flex: 1
+                  },
+                  {
+                    field: 'shortNote',
+                    headerName: 'SHORT NOTE',
+                    flex: 1
+                  },
+                  {
+                    field: 'date',
+                    headerName: 'DATE',
+                    flex: 1
+                  }
+                ]}
                 getRowId={(row) => row.id}
                 slots={{ toolbar: GridToolbar }}
                 slotProps={{ toolbar: { showQuickFilter: true } }}

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Dialog,
@@ -22,17 +22,22 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import Palette from '../../ui-component/ThemePalette';
+import axios from 'axios';
+import { apiurls } from 'Service/api';
 
 const AddDuty = (props) => {
-  const { open, handleClose } = props;
+  const { open, handleClose, fetchAssignData } = props;
+  const [pumpData, setPumpData] = useState([]);
+  const [staffData, setStaffData] = useState([]);
+  const [fuelData, setFuelData] = useState([]);
 
   // Validation Schema
   const validationSchema = yup.object({
     pump: yup.string().required('Pump is required'),
     fuel: yup.string().required('Fuel is required'),
     price: yup.string().required('Price is required'),
-    reading: yup.string().required('Current Reading is required'),
-    assign: yup.string().required('assign is required')
+    current_reading: yup.string().required('Current Reading is required'),
+    staff: yup.string().required('assign is required')
   });
 
   // Initial Values
@@ -40,22 +45,70 @@ const AddDuty = (props) => {
     pump: '',
     fuel: '',
     price: '',
-    reading: '',
-    assign: ''
+    current_reading: '',
+    staff: ''
   };
 
   // formik
   const formik = useFormik({
     initialValues,
     validationSchema,
-    onSubmit: async (values, { resetForm }) => {
-      console.log('MeetingsValues', values);
-      handleClose();
-      toast.success('Meeting Add successfully');
-      resetForm();
+    onSubmit: async (values) => {
+      console.log(values);
+      try {
+        const response = await axios.post(apiurls?.addDuty, values);
+        toast.success('Order added successfully', { autoClose: 600 });
+        formik.resetForm();
+        handleClose();
+        fetchAssignData();
+      } catch (error) {
+        console.error('Error adding order:', error);
+        toast.error('Failed to add Order');
+      }
     }
   });
 
+  const fetchStaffData = async () => {
+    try {
+      const response = await axios.get(apiurls?.getStaff);
+      const data = response.data.map((item) => ({
+        name: item?.full_name,
+        id: item?._id
+      }));
+      setStaffData(data);
+    } catch (error) {
+      console.error('Error fetching supplier data:', error);
+    }
+  };
+  const fetchPumpData = async () => {
+    try {
+      const response = await axios.get(apiurls?.getPump);
+      const data = response.data.map((item) => ({
+        name: item?.code,
+        id: item?._id
+      }));
+      setPumpData(data);
+    } catch (error) {
+      console.error('Error fetching fuel data:', error);
+    }
+  };
+  const fetchFuelData = async () => {
+    try {
+      const response = await axios.get(apiurls?.fuelList);
+      const data = response.data.map((item) => ({
+        name: item?.fuel_type,
+        id: item?._id
+      }));
+      setFuelData(data);
+    } catch (error) {
+      console.error('Error fetching fuel data:', error);
+    }
+  };
+  useEffect(() => {
+    fetchPumpData();
+    fetchStaffData();
+    fetchFuelData();
+  }, []);
   return (
     <div>
       <Dialog open={open} aria-labelledby="scroll-dialog-title" aria-describedby="scroll-dialog-description">
@@ -69,7 +122,7 @@ const AddDuty = (props) => {
         </DialogTitle>
 
         <DialogContent dividers>
-          <form>
+          <form onSubmit={formik.handleSubmit}>
             <DialogContentText id="scroll-dialog-description" tabIndex={-1}>
               <Grid container rowSpacing={3} columnSpacing={{ xs: 0, sm: 5, md: 4 }}>
                 <Grid item xs={12} sm={6} md={6}>
@@ -82,31 +135,41 @@ const AddDuty = (props) => {
                       label=""
                       size="small"
                       fullWidth
-                      value={formik.values.pump || null}
+                      value={formik.values.pump || ''}
                       onChange={formik.handleChange}
                       error={formik.touched.pump && Boolean(formik.errors.pump)}
                       helperText={formik.touched.pump && formik.errors.pump}
                     >
-                      <MenuItem value="Master">Master</MenuItem>
-                      <MenuItem value="Express">Express </MenuItem>
-                      <MenuItem value="Combo">Combo </MenuItem>
-                      <MenuItem value="Bassuka">Bassuka </MenuItem>
+                      {pumpData &&
+                        pumpData.map((item) => (
+                          <MenuItem key={item.id} value={item.id}>
+                            {item.name}
+                          </MenuItem>
+                        ))}
                     </Select>
                     <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.pump && formik.errors.pump}</FormHelperText>
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Fuel Type</FormLabel>
-                  <TextField
+                  <Select
+                    labelId="demo-simple-select-label"
                     id="fuel"
                     name="fuel"
+                    label=""
                     size="small"
                     fullWidth
                     value={formik.values.fuel}
                     onChange={formik.handleChange}
                     error={formik.touched.fuel && Boolean(formik.errors.fuel)}
-                    helperText={formik.touched.fuel && formik.errors.fuel}
-                  />
+                  >
+                    {fuelData &&
+                      fuelData.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Today Price</FormLabel>
@@ -125,59 +188,61 @@ const AddDuty = (props) => {
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Current Reading</FormLabel>
                   <TextField
-                    id="reading"
-                    name="reading"
+                    id="current_reading"
+                    name="current_reading"
                     size="small"
                     type="number"
                     fullWidth
-                    value={formik.values.reading}
+                    value={formik.values.current_reading || ''}
                     onChange={formik.handleChange}
-                    error={formik.touched.reading && Boolean(formik.errors.reading)}
-                    helperText={formik.touched.reading && formik.errors.reading}
+                    error={formik.touched.current_reading && Boolean(formik.errors.current_reading)}
+                    helperText={formik.touched.current_reading && formik.errors.current_reading}
                   />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
                   <FormLabel>Assign this Pump to</FormLabel>
                   <Select
-                    id="assign"
-                    name="assign"
+                    id="staff"
+                    name="staff"
                     label=""
                     size="small"
                     fullWidth
-                    value={formik.values.assign || null}
+                    value={formik.values.staff || ''}
                     onChange={formik.handleChange}
-                    error={formik.touched.assign && Boolean(formik.errors.assign)}
-                    helperText={formik.touched.assign && formik.errors.assign}
+                    error={formik.touched.staff && Boolean(formik.errors.staff)}
+                    helperText={formik.touched.staff && formik.errors.staff}
                   >
-                    <MenuItem value="Aman">Aman</MenuItem>
-                    <MenuItem value="Abhishek">Abhishek</MenuItem>
-                    <MenuItem value="Vardan">Vardan</MenuItem>
-                    <MenuItem value="Harshit">Harshit</MenuItem>
+                    {staffData &&
+                      staffData.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.name}
+                        </MenuItem>
+                      ))}
                   </Select>
                   <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.assign && formik.errors.assign}</FormHelperText>
                 </Grid>
               </Grid>
             </DialogContentText>
+
+            <DialogActions>
+              <Button type="submit" variant="contained" style={{ textTransform: 'capitalize' }} color="secondary">
+                Save
+              </Button>
+              <Button
+                type="reset"
+                variant="outlined"
+                style={{ textTransform: 'capitalize' }}
+                onClick={() => {
+                  formik.resetForm();
+                  handleClose();
+                }}
+                color="error"
+              >
+                Cancel
+              </Button>
+            </DialogActions>
           </form>
         </DialogContent>
-
-        <DialogActions>
-          <Button type="submit" variant="contained" onClick={formik.handleSubmit} style={{ textTransform: 'capitalize' }} color="secondary">
-            Save
-          </Button>
-          <Button
-            type="reset"
-            variant="outlined"
-            style={{ textTransform: 'capitalize' }}
-            onClick={() => {
-              formik.resetForm();
-              handleClose();
-            }}
-            color="error"
-          >
-            Cancel
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   );

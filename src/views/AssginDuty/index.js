@@ -9,79 +9,46 @@ import AddDuty from './AddDuty';
 import { Visibility } from '@mui/icons-material';
 import Iconify from '../../ui-component/iconify';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { useEffect } from 'react';
+import { apiurls } from 'Service/api';
+import EditIcon from '@mui/icons-material/Edit';
+import { IconButton } from '@mui/material';
 import ViewDuty from './ViewDuty/index';
 // ----------------------------------------------------------------------
 
-const meetingData = [
-  {
-    id: 1,
-    subject: 'Task Testing',
-    status: 'In progress',
-    startDate: '08/01/2024',
-    endDate: '09/01/2024',
-    duration: '30 min',
-    relatedTo: 'petter max',
-    assignedUser: 'active user'
-  }
-];
 const MainDuty = () => {
   const [openAdd, setOpenAdd] = useState(false);
-
-  const columns = [
-    {
-      field: 'attendant',
-      headerName: 'ATTENDANT',
-      flex: 1,
-      cellClassName: 'name-column--cell name-column--cell--capitalize'
-    },
-
-    {
-      field: 'fuel',
-      headerName: 'FUEL',
-      flex: 1
-    },
-    {
-      field: 'pumpNo',
-      headerName: 'PUMP NO',
-      flex: 1
-    },
-    {
-      field: 'price/L',
-      headerName: 'PRICE/L',
-      flex: 1
-    },
-    {
-      field: 'beforeSales',
-      headerName: '(BEFORE SALES)',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'afterSales',
-      headerName: '(AFTER SALES )	',
-      flex: 1
-    },
-    {
-      field: 'soldLiters',
-      headerName: 'SOLD(LTRS)',
-      flex: 1
-    },
-    {
-      field: 'amount',
-      headerName: 'AMOUNT',
-      flex: 1
-    },
-    {
-      field: 'edit',
-      headerName: 'EDIT',
-      flex: 1
-    }
-  ];
+  const [assignData, setAssignData] = useState([]);
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => setOpenAdd(false);
+
+  const fetchAssignData = async () => {
+    try {
+      const response = await axios.get(apiurls?.getDuty);
+      console.log(response);
+      const data = response.data.map((item) => {
+        return {
+          attendant: item?.staff.full_name,
+          fuel: item?.fuel.fuel_type,
+          pumpNo: item?.pump.code,
+          price: item?.fuel.liter_price,
+          id: item?._id
+        };
+      });
+      setAssignData(data);
+    } catch (error) {
+      console.error('Error fetching AssignDuty data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignData();
+  }, []);
+
   return (
     <>
-      <AddDuty open={openAdd} handleClose={handleCloseAdd} />
+      <AddDuty open={openAdd} handleClose={handleCloseAdd} fetchAssignData={fetchAssignData} />
       <Container>
         <Stack direction="row" alignItems="center" mb={5} justifyContent={'space-between'}>
           <Typography variant="h4">Assign Duty List</Typography>
@@ -104,8 +71,62 @@ const MainDuty = () => {
           <Box width="100%">
             <Card style={{ height: '600px', paddingTop: '15px' }}>
               <DataGrid
-                rows={meetingData}
-                columns={columns}
+                rows={assignData && assignData}
+                columns={[
+                  {
+                    field: 'attendant',
+                    headerName: 'ATTENDANT-DESIGNATION',
+                    flex: 1,
+                    cellClassName: ' name-column--cell--capitalize'
+                  },
+
+                  {
+                    field: 'fuel',
+                    headerName: 'FUEL',
+                    flex: 1
+                  },
+                  {
+                    field: 'pumpNo',
+                    headerName: 'PUMP NO',
+                    flex: 1
+                  },
+                  {
+                    field: 'price',
+                    headerName: 'PRICE/L',
+                    flex: 1
+                  },
+                  // {
+                  //   field: 'beforeSales',
+                  //   headerName: '(BEFORE SALES)',
+                  //   flex: 1,
+                  //   cellClassName: 'name-column--cell--capitalize'
+                  // },
+                  // {
+                  //   field: 'afterSales',
+                  //   headerName: '(AFTER SALES )	',
+                  //   flex: 1
+                  // },
+                  // {
+                  //   field: 'soldLiters',
+                  //   headerName: 'SOLD(LTRS)',
+                  //   flex: 1
+                  // },
+                  // {
+                  //   field: 'amount',
+                  //   headerName: 'AMOUNT',
+                  //   flex: 1
+                  // },
+                  {
+                    field: 'edit',
+                    headerName: 'EDIT',
+                    flex: 1,
+                    renderCell: (params) => (
+                      <IconButton color="primary">
+                        <EditIcon />
+                      </IconButton>
+                    )
+                  }
+                ]}
                 getRowId={(row) => row.id}
                 slots={{ toolbar: GridToolbar }}
                 slotProps={{ toolbar: { showQuickFilter: true } }}
