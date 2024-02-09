@@ -57,13 +57,17 @@ const AddDuty = (props) => {
       console.log(values);
       try {
         const response = await axios.post(apiurls?.addDuty, values);
-        toast.success('Order added successfully', { autoClose: 600 });
-        formik.resetForm();
-        handleClose();
-        fetchAssignData();
+        if (response.data == 'internal server error') {
+          toast.error('Something Went Wrong', { autoClose: 600 });
+        } else {
+          toast.success('data saved successfully', { autoClose: 600 });
+          formik.resetForm();
+          handleClose();
+          await fetchAssignData();
+        }
       } catch (error) {
-        console.error('Error adding order:', error);
-        toast.error('Failed to add Order');
+        console.error('Error SavingData:', error);
+        toast.error('Failed to add SavingData', { autoClose: 600 });
       }
     }
   });

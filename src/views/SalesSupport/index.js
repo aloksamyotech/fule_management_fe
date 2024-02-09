@@ -1,138 +1,131 @@
 /* eslint-disable react/prop-types */
-import React from 'react';
-import { Button, DialogContent, DialogContentText, Typography, Stack, Box, Card } from '@mui/material';
-
-import ClearIcon from '@mui/icons-material/Clear';
-import { useFormik } from 'formik';
-import * as yup from 'yup';
-import { toast } from 'react-toastify';
-
+import { useState, useEffect } from 'react';
+import { Button, DialogContent, DialogContentText, Typography, Stack, Box, Card, Container } from '@mui/material';
+import Iconify from '../../ui-component/iconify';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import TableStyle from '../../ui-component/TableStyle';
-// import { Link } from 'react-router-dom';
+import SalesData from './AddSales';
+import { apiurls } from 'Service/api';
+import axios from 'axios';
 
-const ViewDuty = () => {
-  const validationSchema = yup.object({
-    // Your validation schema here
-  });
+const SalesManagement = () => {
+  const [openAdd, setOpenAdd] = useState(false);
+  const [salesData, setSalesData] = useState([]);
+  const handleOpenAdd = () => setOpenAdd(true);
+  const handleCloseAdd = () => setOpenAdd(false);
 
-  const initialValues = {
-    // Your initial values here
+  const fetchSalesData = async () => {
+    try {
+      const response = await axios.get(apiurls?.getSales);
+      console.log(response);
+      const data = response.data.map((item) => {
+        return {
+          attendant: item?.staff.designation,
+          fuel: item?.fuel.fuel_type,
+          pump: item?.pump.code,
+          date: item?.created_at,
+          priceL: item?.fuel.liter_price,
+          litersSold: item?.liter,
+          totalAmount: item?.fuel.liter_price * item.liter,
+          id: item?._id
+        };
+      });
+      setSalesData(data);
+    } catch (error) {
+      console.error('Error fetching fuel data:', error);
+    }
   };
 
-  const formik = useFormik({
-    initialValues,
-    validationSchema,
-    onSubmit: async (values) => {
-      console.log('leadValues', values);
-      toast.success('Lead added successfully');
-    }
-  });
-
-  const fuelData = [
-    {
-      id: 1,
-      attendant: 'ADMEOL',
-      fuel: 'PETROL',
-      pump: 'COMBO X',
-      priceL: '165.00/ltrs',
-      litersSold: '600.00Ltrs',
-      totalAmount: '40,000,.00',
-      date: 'Wed 2nd March, 2022'
-    }
-  ];
-
-  const columns = [
-    {
-      field: 'attendant',
-      headerName: 'AttENDANT',
-      flex: 1,
-      cellClassName: ' name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'fuel',
-      headerName: 'FUEL',
-      flex: 1,
-      cellClassName: ' name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'pump',
-      headerName: 'PUMP',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'priceL',
-      headerName: 'PRICE/L',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-
-    {
-      field: 'litersSold',
-      headerName: 'LITERS SOLD',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'totalAmount',
-      headerName: 'TOTAL AMOUNT',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'date',
-      headerName: 'DATE',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    }
-  ];
+  useEffect(() => {
+    fetchSalesData();
+  }, []);
 
   return (
-    <div>
-      <DialogContent dividers>
-        <DialogContentText id="scroll-dialog-description" tabIndex={-1}>
-          <Stack direction="row" alignItems="center" mb={5} justifyContent="space-between">
-            <Typography style={{ marginBottom: '15px' }} variant="h6">
-              <h1>VIEW SALES HISTORY</h1>
-            </Typography>{' '}
-            <Stack direction="row" alignItems="center" justifyContent="flex-end" spacing={2}>
-              {/* <Button variant="contained" component={Link} to="/management/assignDuty">
-                BACK
-              </Button> */}
-            </Stack>
+    <>
+      <SalesData open={openAdd} handleClose={handleCloseAdd} fetchSalesData={fetchSalesData} />
+      <Container>
+        <Stack direction="row" alignItems="center" mb={5} justifyContent={'space-between'}>
+          <Typography variant="h4">Sales-Management</Typography>
+          <Stack direction="row" alignItems="center" justifyContent={'flex-end'} spacing={2}>
+            <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenAdd}>
+              Add Sales
+            </Button>
           </Stack>
-          <TableStyle>
-            <Box width="100%">
-              <Card style={{ height: '600px', paddingTop: '15px' }}>
-                <DataGrid
-                  rows={fuelData}
-                  columns={columns}
-                  getRowId={(row) => row.id}
-                  slots={{ toolbar: GridToolbar }}
-                  slotProps={{ toolbar: { showQuickFilter: true } }}
-                />
-              </Card>
-            </Box>
-          </TableStyle>
-        </DialogContentText>
-      </DialogContent>
-    </div>
+        </Stack>
+        <TableStyle>
+          <Box width="100%">
+            <Card style={{ height: '600px', paddingTop: '15px' }}>
+              <DataGrid
+                rows={salesData && salesData}
+                columns={[
+                  {
+                    field: 'attendant',
+                    headerName: 'ATTENDANT',
+                    flex: 1,
+                    cellClassName: ' name-column--cell--capitalize',
+                    headerAlign: 'center',
+                    align: 'center'
+                  },
+                  {
+                    field: 'fuel',
+                    headerName: 'FUEL',
+                    flex: 1,
+                    cellClassName: ' name-column--cell--capitalize',
+                    headerAlign: 'center',
+                    align: 'center'
+                  },
+                  {
+                    field: 'pump',
+                    headerName: 'PUMP',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize',
+                    headerAlign: 'center',
+                    align: 'center'
+                  },
+                  {
+                    field: 'priceL',
+                    headerName: 'PRICE/L',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize',
+                    headerAlign: 'center',
+                    align: 'center'
+                  },
+
+                  {
+                    field: 'litersSold',
+                    headerName: 'LITERS SOLD',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize',
+                    headerAlign: 'center',
+                    align: 'center'
+                  },
+                  {
+                    field: 'totalAmount',
+                    headerName: 'TOTAL AMOUNT',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize',
+                    headerAlign: 'center',
+                    align: 'center'
+                  },
+                  {
+                    field: 'date',
+                    headerName: 'DATE',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize',
+                    headerAlign: 'center',
+                    align: 'center'
+                  }
+                ]}
+                getRowId={(row) => row.id}
+                slots={{ toolbar: GridToolbar }}
+                slotProps={{ toolbar: { showQuickFilter: true } }}
+              />
+            </Card>
+          </Box>
+        </TableStyle>
+      </Container>
+    </>
   );
 };
 
-export default ViewDuty;
+export default SalesManagement;

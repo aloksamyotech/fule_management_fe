@@ -86,12 +86,12 @@ const Pump = () => {
                     flex: 1,
                     cellClassName: 'name-column--cell--capitalize'
                   },
-                  {
-                    field: 'status',
-                    headerName: 'STATUS',
-                    flex: 1,
-                    cellClassName: 'name-column--cell--capitalize'
-                  },
+                  // {
+                  //   field: 'status',
+                  //   headerName: 'STATUS',
+                  //   flex: 1,
+                  //   cellClassName: 'name-column--cell--capitalize'
+                  // },
                   {
                     field: 'action',
                     headerName: 'ACTION',

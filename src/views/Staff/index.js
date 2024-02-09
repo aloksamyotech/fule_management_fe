@@ -11,23 +11,15 @@ import AddStaff from './AddStaff';
 import EditIcon from '@mui/icons-material/Edit';
 import { Visibility } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useEffect } from 'react';
+import { apiurls } from 'Service/api';
+import axios from 'axios';
 
 // ----------------------------------------------------------------------
 
-const policyData = [
-  {
-    id: 1,
-    staffId: 'PSMS99287',
-    name: 'AMAN LIKHAR',
-    phone: '09993064875',
-    email: 'amit@gm.com	',
-    address: 'Sango Ota Ogun State',
-    position: 'MANAGER',
-    action: 'active'
-  }
-];
 const StaffManagement = () => {
   const [openAdd, setOpenAdd] = useState(false);
+  const [staffData, setStaffData] = useState([]);
   const columns = [
     {
       field: 'staffId',
@@ -77,11 +69,39 @@ const StaffManagement = () => {
       )
     }
   ];
+
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => setOpenAdd(false);
+
+  const fetchStaff = async () => {
+    try {
+      const staffData = await axios.get(apiurls?.getAllStaff);
+      console.log(staffData);
+      const data =
+        staffData &&
+        staffData.data.map((staff, index) => {
+          return {
+            staffId: staff?.reg_number,
+            name: staff?.full_name || '-',
+            phone: '+91 ' + staff?.phone || '-',
+            email: staff?.email || '-',
+            address: staff?.address || '-',
+            position: staff?.designation || '-',
+            id: staff?._id || index
+          };
+        });
+      setStaffData(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaff();
+  }, []);
   return (
     <>
-      <AddStaff open={openAdd} handleClose={handleCloseAdd} />
+      <AddStaff open={openAdd} handleClose={handleCloseAdd} getStaff={fetchStaff} />
       <Container>
         <Stack direction="row" alignItems="center" mb={5} justifyContent={'space-between'}>
           <Typography variant="h4">Staff-Management</Typography>
@@ -95,11 +115,12 @@ const StaffManagement = () => {
           <Box width="100%">
             <Card style={{ height: '600px', paddingTop: '15px' }}>
               <DataGrid
-                rows={policyData}
+                rows={staffData}
                 columns={columns}
-                getRowId={(row) => row.id}
+                getRowId={staffData?.id}
                 slots={{ toolbar: GridToolbar }}
                 slotProps={{ toolbar: { showQuickFilter: true } }}
+                key={staffData?.id}
               />
             </Card>
           </Box>

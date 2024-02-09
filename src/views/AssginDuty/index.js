@@ -56,7 +56,7 @@ const MainDuty = () => {
             <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />} onClick={handleOpenAdd}>
               Meter Allocation
             </Button>
-            <Button
+            {/* <Button
               variant="contained"
               startIcon={<Visibility />}
               component={Link}
@@ -64,7 +64,7 @@ const MainDuty = () => {
               style={{ backgroundColor: '#673AB7 ' }}
             >
               View Sales History
-            </Button>
+            </Button> */}
           </Stack>
         </Stack>
         <TableStyle>

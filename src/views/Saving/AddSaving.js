@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -12,58 +12,57 @@ import FormControl from '@mui/material/FormControl';
 import ClearIcon from '@mui/icons-material/Clear';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import axios from 'axios';
+import { apiurls } from 'Service/api';
 import { FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup } from '@mui/material';
 import { toast } from 'react-toastify';
-// import { apipost } from '../../service/api';
-// import { FiSave } from "react-icons/fi";
-// import { GiCancel } from "react-icons/gi";
 import Palette from '../../ui-component/ThemePalette';
 
 const SavingList = (props) => {
-  const { open, handleClose } = props;
+  const { open, handleClose, fetchSavingData } = props;
+
   // const userid = localStorage.getItem('user_id');
 
   // -----------  validationSchema
   const validationSchema = yup.object({
-    desc: yup.string().required('Bank Description is required'),
+    bank: yup.string().required('Bank Description is required'),
     amount: yup.string().required('Amount is required'),
     note: yup.string().required('Note is required'),
-    pass: yup.string().required('PassCode is required')
+    pass_code: yup.string().required('PassCode is required')
   });
 
   // -----------   initialValues
   const initialValues = {
-    desc: '',
+    bank: '',
     amount: '',
     note: '',
-    pass: ''
+    pass_code: ''
   };
-
-  // add contact api
-  // const addContact = async (values) => {
-  //   const data = values;
-  //   const result = await apipost('contact/add', data)
-  //   setUserAction(result)
-
-  //   if (result && result.status === 201) {
-  //     formik.resetForm();
-  //     handleClose();
-  //     toast.success(result.data.message)
-  //   }
-  // }
 
   // formik
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      // addContact(values)
-      console.log('ContactValues', values);
-      handleClose();
-      toast.success('Contact Add successfully');
+      console.log(values);
+      try {
+        const response = await axios.post(apiurls?.addSaving, values);
+
+        console.log('API response:', response.data);
+        if (response.data == 'internal server error') {
+          toast.error('Something Went Wrong', { autoClose: 600 });
+        } else {
+          toast.success('data saved successfully', { autoClose: 600 });
+          formik.resetForm();
+          handleClose();
+          await fetchSavingData();
+        }
+      } catch (error) {
+        console.error('Error SavingData:', error);
+        toast.error('Failed to add SavingData', { autoClose: 600 });
+      }
     }
   });
 
@@ -86,7 +85,7 @@ const SavingList = (props) => {
         </DialogTitle>
 
         <DialogContent dividers>
-          <form>
+          <form onSubmit={formik.handleSubmit}>
             <Typography style={{ marginBottom: '15px' }} variant="h6">
               Basic Information
             </Typography>
@@ -96,26 +95,27 @@ const SavingList = (props) => {
                   <FormLabel>Bank Desc</FormLabel>
                   <Select
                     labelId="demo-simple-select-label"
-                    id="desc"
-                    name="desc"
+                    id="bank"
+                    name="bank"
                     label=""
                     size="small"
                     fullWidth
-                    value={formik.values.desc || null}
+                    value={formik.values.bank || ''}
                     onChange={formik.handleChange}
-                    error={formik.touched.desc && Boolean(formik.errors.desc)}
-                    helperText={formik.touched.desc && formik.errors.desc}
+                    error={formik.touched.bank && Boolean(formik.errors.bank)}
+                    helperText={formik.touched.bank && formik.errors.bank}
                   >
                     <MenuItem value="SBI">SBI</MenuItem>
                     <MenuItem value="UCO">UCO </MenuItem>
                     <MenuItem value="INDIAN">INDIAN </MenuItem>
                     <MenuItem value="PNB">PNB </MenuItem>
+                    <MenuItem value="OTHERS">OTHERS </MenuItem>
                   </Select>
-                  <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.desc && formik.errors.desc}</FormHelperText>
+                  <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.bank && formik.errors.bank}</FormHelperText>
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6} md={6}>
-                <FormLabel>Amount Taking to Bank</FormLabel>
+                <FormLabel>Amount</FormLabel>
                 <TextField
                   id="amount"
                   name="amount"
@@ -128,7 +128,7 @@ const SavingList = (props) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={6}>
-                <FormLabel>Note</FormLabel>
+                <FormLabel>Comment</FormLabel>
                 <TextField
                   id="note"
                   name="note"
@@ -141,44 +141,38 @@ const SavingList = (props) => {
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={6}>
-                <FormLabel>PassCode</FormLabel>
+                <FormLabel>IFSC_CODE</FormLabel>
                 <TextField
-                  id="pass"
-                  name="pass"
+                  id="pass_code"
+                  name="pass_code"
                   size="small"
                   fullWidth
-                  value={formik.values.pass}
+                  value={formik.values.pass_code}
                   onChange={formik.handleChange}
-                  error={formik.touched.pass && Boolean(formik.errors.pass)}
-                  helperText={formik.touched.pass && formik.errors.pass}
+                  error={formik.touched.pass_code && Boolean(formik.errors.pass_code)}
+                  helperText={formik.touched.pass_code && formik.errors.pass_code}
                 />
               </Grid>
             </Grid>
+            <DialogActions>
+              <Button type="submit" variant="contained" style={{ textTransform: 'capitalize' }}>
+                Save
+              </Button>
+              <Button
+                type="reset"
+                variant="outlined"
+                style={{ textTransform: 'capitalize' }}
+                color="error"
+                onClick={() => {
+                  formik.resetForm();
+                  handleClose();
+                }}
+              >
+                Cancel
+              </Button>
+            </DialogActions>
           </form>
         </DialogContent>
-        <DialogActions>
-          <Button
-            type="submit"
-            variant="contained"
-            onClick={formik.handleSubmit}
-            style={{ textTransform: 'capitalize' }}
-            // startIcon={<FiSave />}
-          >
-            Save
-          </Button>
-          <Button
-            type="reset"
-            variant="outlined"
-            style={{ textTransform: 'capitalize' }}
-            color="error"
-            onClick={() => {
-              formik.resetForm();
-              handleClose();
-            }}
-          >
-            Cancel
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   );

@@ -44,7 +44,7 @@ const SavingData = () => {
 
   return (
     <>
-      <SavingList open={openAdd} handleClose={handleCloseAdd} />
+      <SavingList open={openAdd} handleClose={handleCloseAdd} fetchSavingData={fetchSavingData} />
       <Container>
         <Stack direction="row" alignItems="center" mb={5} justifyContent={'space-between'}>
           <Typography variant="h4">Saving-Management</Typography>

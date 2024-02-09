@@ -26,5 +26,30 @@ export const apiurls = {
 
   //Saving Api
   addSaving: pmsUrl + 'add/saving',
-  getSaving: pmsUrl + 'saving/get/all'
+  getSaving: pmsUrl + 'saving/get/all',
+
+  //Sales Api
+  addSales: pmsUrl + 'add/sales',
+  getSales: pmsUrl + 'sales/get/all',
+
+  //Supplier Api
+  addSupplier: pmsUrl + 'supplier/details',
+  getSupplier: pmsUrl + 'supplier/getalldetails',
+
+  // Creditor Api
+  addCreditor: pmsUrl + 'creditor/add',
+  getCreditor: pmsUrl + 'creditor/get/all',
+
+  //Staff Api
+  getAllStaff: pmsUrl + 'staff/get/all',
+  saveStaff: pmsUrl + 'staff/add',
+  // payroll api
+  savePayroll: pmsUrl + 'payroll/add',
+  fetchPayroll: pmsUrl + 'payroll/get/all',
+
+  //User Api
+
+  // updateUser: pmsUrl + 'user/login',
+  userLogin: pmsUrl + 'user/login',
+  userSignup: pmsUrl + 'user/add'
 };

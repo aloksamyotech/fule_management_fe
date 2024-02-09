@@ -13,36 +13,52 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import Palette from '../../ui-component/ThemePalette';
+import axios from 'axios';
+import { apiurls } from 'Service/api';
 
 const CreditorsData = (props) => {
-  const { open, handleClose } = props;
+  const { open, handleClose, fetchCreditorData } = props;
 
   const validationSchema = yup.object({
     type: yup.string().required('Type is required'),
     name: yup.string().required(' Name is required'),
-    phoneNumber: yup
+    phone: yup
       .string()
       .matches(/^[0-9]{10}$/, 'Phone number is invalid')
       .required('Phone number is required'),
-    emailAddress: yup.string().email('Invalid email').required('Email is required'),
-    address: yup.string().required('Address is required')
+    email: yup.string().email('Invalid email').required('Email is required'),
+    office_address: yup.string().required('Address is required')
   });
 
   const initialValues = {
     type: '',
     name: '',
-    phoneNumber: '',
-    emailAddress: '',
-    address: ''
+    phone: '',
+    email: '',
+    office_address: ''
   };
 
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      console.log('leadValues', values);
-      handleClose();
-      toast.success('Lead added successfully');
+      console.log(values);
+      try {
+        const response = await axios.post(apiurls?.addCreditor, values);
+
+        console.log('API response:', response.data);
+        if (response.data == 'internal server error') {
+          toast.error('Something Went Wrong', { autoClose: 600 });
+        } else {
+          toast.success('data saved successfully', { autoClose: 600 });
+          formik.resetForm();
+          handleClose();
+          await fetchCreditorData();
+        }
+      } catch (error) {
+        console.error('Error SavingData:', error);
+        toast.error('Failed to add SavingData', { autoClose: 600 });
+      }
     }
   });
 
@@ -58,7 +74,7 @@ const CreditorsData = (props) => {
           </Typography>
         </DialogTitle>
         <DialogContent dividers>
-          <form>
+          <form onSubmit={formik.handleSubmit}>
             <DialogContentText id="scroll-dialog-description" tabIndex={-1}>
               <Typography style={{ marginBottom: '15px' }} variant="h6">
                 <h1>Enter Creditor Details</h1>
@@ -74,7 +90,7 @@ const CreditorsData = (props) => {
                       label=""
                       size="small"
                       fullWidth
-                      value={formik.values.type || null}
+                      value={formik.values.type || ''}
                       onChange={formik.handleChange}
                       error={formik.touched.type && Boolean(formik.errors.type)}
                       helperText={formik.touched.type && formik.errors.type}
@@ -103,64 +119,64 @@ const CreditorsData = (props) => {
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Email</FormLabel>
                   <TextField
-                    id="emailAddress"
-                    name="emailAddress"
+                    id="email"
+                    name="email"
                     size="small"
                     type="string"
                     fullWidth
-                    value={formik.values.emailAddress}
+                    value={formik.values.email}
                     onChange={formik.handleChange}
-                    error={formik.touched.emailAddress && Boolean(formik.errors.emailAddress)}
-                    helperText={formik.touched.emailAddress && formik.errors.emailAddress}
+                    error={formik.touched.email && Boolean(formik.errors.email)}
+                    helperText={formik.touched.email && formik.errors.email}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Phone Number</FormLabel>
                   <TextField
-                    id="phoneNumber"
-                    name="phoneNumber"
+                    id="phone"
+                    name="phone"
                     size="small"
                     type="number"
                     fullWidth
-                    value={formik.values.phoneNumber}
+                    value={formik.values.phone}
                     onChange={formik.handleChange}
-                    error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
-                    helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
+                    error={formik.touched.phone && Boolean(formik.errors.phone)}
+                    helperText={formik.touched.phone && formik.errors.phone}
                   />
                 </Grid>
                 <Grid item xs={12} sm={12} md={12}>
                   <FormLabel>Office Address</FormLabel>
                   <TextField
-                    id="address"
-                    name="address"
+                    id="office_address"
+                    name="office_address"
                     size="small"
                     type="string"
                     fullWidth
-                    value={formik.values.address}
+                    value={formik.values.office_address}
                     onChange={formik.handleChange}
-                    error={formik.touched.address && Boolean(formik.errors.address)}
-                    helperText={formik.touched.address && formik.errors.address}
+                    error={formik.touched.office_address && Boolean(formik.errors.office_address)}
+                    helperText={formik.touched.office_address && formik.errors.office_address}
                   />
                 </Grid>
               </Grid>
             </DialogContentText>
+            <DialogActions>
+              <Button variant="contained" color="primary" type="submit">
+                Save
+              </Button>
+              <Button
+                onClick={() => {
+                  formik.resetForm();
+                  handleClose();
+                }}
+                variant="outlined"
+                color="error"
+              >
+                Cancel
+              </Button>
+            </DialogActions>
           </form>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={formik.handleSubmit} variant="contained" color="primary" type="submit">
-            Save
-          </Button>
-          <Button
-            onClick={() => {
-              formik.resetForm();
-              handleClose();
-            }}
-            variant="outlined"
-            color="error"
-          >
-            Cancel
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   );
