@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-
+import { Link, useNavigate } from 'react-router-dom';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -24,6 +24,7 @@ import {
 // third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import { toast } from 'react-toastify';
 
 // project imports
 import useScriptRef from 'hooks/useScriptRef';
@@ -34,6 +35,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import Google from 'assets/images/icons/social-google.svg';
+import axios from 'axios';
+import { apiurls } from 'Service/api';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -47,6 +50,7 @@ const FirebaseLogin = ({ ...others }) => {
   const googleHandler = async () => {
     console.error('Login');
   };
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
@@ -55,6 +59,29 @@ const FirebaseLogin = ({ ...others }) => {
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
+  };
+  const LoginUser = async (values) => {
+    try {
+      const data = values;
+      const loginResponse = await axios.post(apiurls?.userLogin, data);
+      console.log('======================================>>>>', loginResponse);
+
+      if (loginResponse.data === 'internal server error') {
+        toast.error('Something Went Wrong', { autoClose: 600 });
+      } else {
+        if (loginResponse.data == 'user not found') {
+          toast.error('user does not exist', { autoClose: 600 });
+        } else if (loginResponse.data == 'incorrect password') {
+          toast.error(loginResponse.data, { autoClose: 600 });
+        } else {
+          toast.success('Data saved successfully', { autoClose: 60 });
+          navigate('/dashboard/default');
+        }
+      }
+    } catch (error) {
+      console.error('Error User Data:', error);
+      toast.error('Login Failed', { autoClose: 600 });
+    }
   };
 
   return (
@@ -120,8 +147,8 @@ const FirebaseLogin = ({ ...others }) => {
 
       <Formik
         initialValues={{
-          email: 'info@codedthemes.com',
-          password: '123456',
+          email: '',
+          password: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
@@ -142,6 +169,7 @@ const FirebaseLogin = ({ ...others }) => {
               setSubmitting(false);
             }
           }
+          LoginUser(values);
         }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (

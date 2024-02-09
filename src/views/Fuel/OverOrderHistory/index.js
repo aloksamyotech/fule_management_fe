@@ -1,75 +1,79 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from 'react';
-import { Button, DialogContent, DialogContentText, Typography, Stack, Box, Card } from '@mui/material';
+import React from 'react';
+import {
+  Button,
+  // Dialog,
+  // DialogActions,
+  DialogContent,
+  DialogContentText,
+  // DialogTitle,
+  // FormControl,
+  // FormHelperText,
+  // FormLabel,
+  // Grid,
+  // InputAdornment,
+  // MenuItem,
+  // OutlinedInput,
+  // Radio,
+  // RadioGroup,
+  // Rating,
+  // Select,
+  // TextField,
+  Typography,
+  Stack,
+  Box,
+  Card
+} from '@mui/material';
+
 import ClearIcon from '@mui/icons-material/Clear';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import TableStyle from '../../../ui-component/TableStyle';
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
-import { apiurls } from 'Service/api';
 
 const ViewOrderHistory = () => {
-  const [orderData, setOrderData] = useState([]);
-  console.log(orderData);
-  const fetchOrderData = async () => {
-    try {
-      const response = await axios.get(apiurls?.getOrder);
+  const validationSchema = yup.object({
+    // Your validation schema here
+  });
 
-      const data = response.data.map((item) => {
-        return {
-          fuelType: item?.fuel.fuel_type,
-          liters: item?.liters,
-          cost: item?.cost,
-          supplier: item?.supplier.name,
-          date: item?.created_at,
-          id: item?._id
-        };
-      });
-      setOrderData(data);
-    } catch (error) {
-      console.error('Error fetching fuel data:', error);
-    }
+  const initialValues = {
+    // Your initial values here
   };
 
-  useEffect(() => {
-    fetchOrderData();
-  }, []);
+  const formik = useFormik({
+    initialValues,
+    validationSchema,
+    onSubmit: async (values) => {
+      console.log('leadValues', values);
+      toast.success('Lead added successfully');
+    }
+  });
 
-  // const formik = useFormik({
-  //   initialValues,
-  //   validationSchema,
-  //   onSubmit: async (values) => {
-  //     console.log('leadValues', values);
-  //     toast.success('Lead added successfully');
-  //   }
-  // });
-
-  // const fuelData = [
-  //   {
-  //     id: 1,
-  //     fuelType: 'Petrol',
-  //     totalLitersSupplied: '1,930.00 Liters',
-  //     cost: '40,000,.00',
-  //     supplier: 'Adeola',
-  //     date: 'Wed 2nd March, 2022'
-  //   }
-  // ];
+  const fuelData = [
+    {
+      id: 1,
+      fuelType: 'Petrol',
+      totalLitersSupplied: '1,930.00 Liters',
+      cost: '40,000,.00',
+      supplier: 'Adeola',
+      date: 'Wed 2nd March, 2022'
+    }
+  ];
 
   const columns = [
     {
       field: 'fuelType',
       headerName: 'FUEL TYPE',
       flex: 1,
-      cellClassName: ' name-column--cell--capitalize',
+      cellClassName: 'name-column--cell name-column--cell--capitalize',
       headerAlign: 'center',
       align: 'center'
     },
     {
-      field: 'liters',
+      field: 'totalLitersSupplied',
       headerName: 'TOTAL LITERS SUPPLIED',
       flex: 1,
       cellClassName: 'name-column--cell--capitalize',
@@ -120,7 +124,7 @@ const ViewOrderHistory = () => {
             <Box width="100%">
               <Card style={{ height: '600px', paddingTop: '15px' }}>
                 <DataGrid
-                  rows={orderData && orderData}
+                  rows={fuelData}
                   columns={columns}
                   getRowId={(row) => row.id}
                   slots={{ toolbar: GridToolbar }}

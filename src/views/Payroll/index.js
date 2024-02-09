@@ -11,21 +11,14 @@ import ViewPayrollHistory from './ViewPayroll';
 import { IconButton } from '@mui/material';
 import ViewIcon from '@mui/icons-material/Visibility';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { fetchPayrollRecords } from './payrollApi';
 // ----------------------------------------------------------------------
 
-const documentData = [
-  {
-    id: 1,
-    name: 'Tiger Nixon',
-    position: 'System Architect	',
-    qualification: 'Edinburgh',
-    salary: '61',
-    joinDate: '09/01/2024',
-    action: 'add/Edit'
-  }
-];
 const Documents = () => {
   const [openAdd, setOpenAdd] = useState(false);
+  const [payroll, setPayroll] = useState([]);
   const columns = [
     {
       field: 'name',
@@ -67,11 +60,38 @@ const Documents = () => {
       )
     }
   ];
+  const fetchPayrollDetails = async () => {
+    try {
+      const response = await fetchPayrollRecords();
+      console.log(response);
+      if (response?.data === 'internal server error') {
+        toast.error('internal server error');
+      } else {
+        const data = response.data.map((item) => {
+          return {
+            name: item?.staff.full_name,
+            position: item?.allowances,
+            qualification: item?.tds,
+            salary: item?.basic_salary,
+            joinDate: item?.created_at,
+            id: item?._id
+          };
+        });
+        setPayroll(data);
+      }
+    } catch (error) {
+      toast.error('something went wrong');
+    }
+  };
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => setOpenAdd(false);
+
+  useEffect(() => {
+    fetchPayrollDetails();
+  }, []);
   return (
     <>
-      <PayrollData open={openAdd} handleClose={handleCloseAdd} />
+      <PayrollData open={openAdd} handleClose={handleCloseAdd} fetchPayrollDetails={fetchPayrollDetails} />
       <Container>
         <Stack direction="row" alignItems="center" mb={5} justifyContent={'space-between'}>
           <Typography variant="h4">Payroll Lists</Typography>
@@ -85,9 +105,9 @@ const Documents = () => {
           <Box width="100%">
             <Card style={{ height: '600px', paddingTop: '15px' }}>
               <DataGrid
-                rows={documentData}
+                rows={payroll}
                 columns={columns}
-                getRowId={(row) => row.id}
+                getRowId={payroll.id}
                 slots={{ toolbar: GridToolbar }}
                 slotProps={{ toolbar: { showQuickFilter: true } }}
               />

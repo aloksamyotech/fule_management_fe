@@ -37,6 +37,7 @@ const Fuel = () => {
   };
 
   useEffect(() => {
+    // Fetch fuel data from the API when the component mounts
     fetchFuelData();
   }, []);
   return (

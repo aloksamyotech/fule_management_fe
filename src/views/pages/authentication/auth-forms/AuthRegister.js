@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 // material-ui
@@ -25,6 +25,7 @@ import {
 // third party
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import { toast } from 'react-toastify';
 
 // project imports
 import useScriptRef from 'hooks/useScriptRef';
@@ -35,6 +36,8 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 // assets
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import axios from 'axios';
+import { apiurls } from 'Service/api';
 
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
@@ -52,7 +55,7 @@ const FirebaseRegister = ({ ...others }) => {
   const googleHandler = async () => {
     console.error('Register');
   };
-
+  const navigate = useNavigate();
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -70,6 +73,25 @@ const FirebaseRegister = ({ ...others }) => {
   useEffect(() => {
     changePassword('123456');
   }, []);
+
+  const RegisterUser = async (values) => {
+    console.log(values);
+    try {
+      const data = values;
+      const result = await axios.post(apiurls?.userSignup, data);
+      console.log(result.data);
+
+      if (result.data === 'internal server error') {
+        toast.error('Something Went Wrong', { autoClose: 600 });
+      } else {
+        toast.success('Data saved successfully', { autoClose: 60 });
+        navigate('/pages/login/login3');
+      }
+    } catch (error) {
+      console.error('Error User Data:', error);
+      toast.error('Registration Failed', { autoClose: 600 });
+    }
+  };
 
   return (
     <>
@@ -128,11 +150,15 @@ const FirebaseRegister = ({ ...others }) => {
         initialValues={{
           email: '',
           password: '',
+          firstname: '',
+          lastname: '',
           submit: null
         }}
         validationSchema={Yup.object().shape({
           email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-          password: Yup.string().max(255).required('Password is required')
+          password: Yup.string().max(255).required('Password is required'),
+          firstname: Yup.string().max(255).required('First name is required'),
+          lastname: Yup.string().max(255).required('Last name is required')
         })}
         onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
           try {
@@ -148,6 +174,7 @@ const FirebaseRegister = ({ ...others }) => {
               setSubmitting(false);
             }
           }
+          RegisterUser(values);
         }}
       >
         {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
@@ -156,11 +183,12 @@ const FirebaseRegister = ({ ...others }) => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="First Name"
+                  label="first Name"
                   margin="normal"
-                  name="fname"
+                  name="firstname"
                   type="text"
                   defaultValue=""
+                  onChange={handleChange}
                   sx={{ ...theme.typography.customInput }}
                 />
               </Grid>
@@ -169,15 +197,16 @@ const FirebaseRegister = ({ ...others }) => {
                   fullWidth
                   label="Last Name"
                   margin="normal"
-                  name="lname"
+                  name="lastname"
                   type="text"
                   defaultValue=""
+                  onChange={handleChange}
                   sx={{ ...theme.typography.customInput }}
                 />
               </Grid>
             </Grid>
             <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-              <InputLabel htmlFor="outlined-adornment-email-register">Email Address / Username</InputLabel>
+              <InputLabel htmlFor="outlined-adornment-email-register">Email Address</InputLabel>
               <OutlinedInput
                 id="outlined-adornment-email-register"
                 type="email"

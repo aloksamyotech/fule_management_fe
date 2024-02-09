@@ -34,7 +34,7 @@ const AddPolicy = (props) => {
 
   const initialValues = {
     designation: '',
-    full_name: '',
+    name: '',
     phone: '',
     email: '',
     address: '',

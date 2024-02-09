@@ -9,7 +9,16 @@ export const apiurls = {
 
   //Order Api
   addOrder: pmsUrl + 'order/details',
-  getOrder: pmsUrl + 'order/getAllDetails',
+
+  //Staff Api
+
+  getAllStaff: pmsUrl + 'staff/get/all',
+  saveStaff: pmsUrl + 'staff/add',
+
+  // payroll api
+
+  savePayroll: pmsUrl + 'payroll/add',
+  fetchPayroll: pmsUrl + 'payroll/get/all',
 
   //Pump Api
   addPump: pmsUrl + 'add/pump',
@@ -39,13 +48,6 @@ export const apiurls = {
   // Creditor Api
   addCreditor: pmsUrl + 'creditor/add',
   getCreditor: pmsUrl + 'creditor/get/all',
-
-  //Staff Api
-  getAllStaff: pmsUrl + 'staff/get/all',
-  saveStaff: pmsUrl + 'staff/add',
-  // payroll api
-  savePayroll: pmsUrl + 'payroll/add',
-  fetchPayroll: pmsUrl + 'payroll/get/all',
 
   //User Api
 

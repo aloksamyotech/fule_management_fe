@@ -12,44 +12,40 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
 import { apiurls } from 'Service/api';
-import { toast } from 'react-toastify';
+
 const AddLead = (props) => {
   const { open, handleClose } = props;
+
   const [fuelData, setFuelData] = useState([]);
   const [supplierData, setSupplierData] = useState([]);
+
   const validationSchema = yup.object({
     fuel: yup.string().required('Fuel Type is required'),
     supplier: yup.string().required('Supplier Name is required'),
     cost: yup.string().required('Cost is required'),
     liters: yup.string().required('Liters is required')
   });
+
   const initialValues = {
     fuel: '',
     supplier: '',
     cost: '',
     liters: ''
   };
+
   const formik = useFormik({
     initialValues,
-    validationSchema,
+    // validationSchema,
     onSubmit: async (values) => {
-      console.log(values);
-      try {
-        const response = await axios.post(apiurls?.addOrder, values);
-
-        console.log('API response:', response.data);
-        toast.success('Order added successfully', { autoClose: 600 });
-        formik.resetForm();
-        handleClose();
-      } catch (error) {
-        console.error('Error adding order:', error);
-        toast.error('Failed to add Order');
-      }
+      console.log('Form submitted with values: ', values);
+// You can perform further actions here, such as sending the form data to a server
     }
   });
+
   const fetchSupplierData = async () => {
     try {
       const response = await axios.get(apiurls?.supplierList);
+
       const data = response.data.map((item) => ({
         supplier: item?.name,
         id: item?._id
@@ -59,6 +55,7 @@ const AddLead = (props) => {
       console.error('Error fetching supplier data:', error);
     }
   };
+
   const fetchFuelData = async () => {
     try {
       const response = await axios.get(apiurls?.fuelList);
@@ -73,10 +70,12 @@ const AddLead = (props) => {
       console.error('Error fetching fuel data:', error);
     }
   };
+
   useEffect(() => {
     fetchFuelData();
     fetchSupplierData();
   }, []);
+
   return (
     <div>
       <Dialog open={open} onClose={handleClose} aria-labelledby="scroll-dialog-title" aria-describedby="scroll-dialog-description">
@@ -111,7 +110,7 @@ const AddLead = (props) => {
                     >
                       {fuelData &&
                         fuelData.map((item) => (
-                          <MenuItem key={item.id} value={item.id}>
+                          <MenuItem key={item.id} value={item.name}>
                             {item.name}
                           </MenuItem>
                         ))}
@@ -133,7 +132,7 @@ const AddLead = (props) => {
                   >
                     {supplierData &&
                       supplierData.map((item) => (
-                        <MenuItem key={item.id} value={item.id}>
+                        <MenuItem key={item.id} value={item.supplier}>
                           {item.supplier}
                         </MenuItem>
                       ))}
@@ -191,4 +190,5 @@ const AddLead = (props) => {
     </div>
   );
 };
+
 export default AddLead;
