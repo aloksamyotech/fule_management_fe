@@ -8,5 +8,18 @@ export const apiurls = {
   supplierList: pmsUrl + 'supplier/getalldetails',
 
   //Order Api
-  addOrder: pmsUrl + 'order/details'
+  addOrder: pmsUrl + 'order/details',
+
+
+  //Staff Api 
+
+  getAllStaff: pmsUrl + 'staff/get/all',
+  saveStaff: pmsUrl + 'staff/add',
+
+
+  // payroll api 
+
+  savePayroll: pmsUrl + 'payroll/add',
+  fetchPayroll: pmsUrl + 'payroll/get/all'
+
 };

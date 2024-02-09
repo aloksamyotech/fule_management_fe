@@ -38,7 +38,7 @@ const AddLead = (props) => {
     // validationSchema,
     onSubmit: async (values) => {
       console.log('Form submitted with values: ', values);
-      // You can perform further actions here, such as sending the form data to a server
+// You can perform further actions here, such as sending the form data to a server
     }
   });
 
@@ -59,7 +59,6 @@ const AddLead = (props) => {
   const fetchFuelData = async () => {
     try {
       const response = await axios.get(apiurls?.fuelList);
-
       const data = response.data.map((item) => ({
         name: item?.fuel_type,
         qty: item?.litres,

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -7,12 +6,7 @@ import {
   FormHelperText,
   FormLabel,
   Grid,
-  InputAdornment,
   MenuItem,
-  OutlinedInput,
-  Radio,
-  RadioGroup,
-  Rating,
   Select,
   TextField
 } from '@mui/material';
@@ -26,22 +20,27 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import Palette from '../../ui-component/ThemePalette';
+import { fetchStaffRecords, savePayrollDetails } from './payrollApi';
+import { useEffect, useState } from 'react';
 
 const PayrollData = (props) => {
   const { open, handleClose } = props;
+  const [staff, setStaff] = useState([]);
+  const [payroll, setPayroll] = useState([]);
+  const [selectedStaff, setSelectedStaff] = useState('');
 
   const validationSchema = yup.object({
     staff: yup.string().required('Staff is required'),
-    salary: yup.string().required(' Basic Salary is required'),
-    allowances: yup.string().required(' Total Allowances is required'),
-    Tax: yup.string().required('TDS is required')
+    salary: yup.number().required('Basic Salary is required'),
+    allowances: yup.number().required('Total Allowances is required'),
+    tds: yup.number().required('TDS is required')
   });
 
   const initialValues = {
     staff: '',
     salary: '',
     allowances: '',
-    Tax: ''
+    tds: ''
   };
 
   const formik = useFormik({
@@ -49,14 +48,47 @@ const PayrollData = (props) => {
     validationSchema,
     onSubmit: async (values) => {
       console.log('leadValues', values);
-      handleClose();
-      toast.success('Lead added successfully');
+      const response = await savePayrollDetails(values)
+      if (response.data == 'internal server error') {
+        toast.error(response.data)
+      } else {
+        handleClose();
+        toast.success('Lead added successfully');
+      }
+
     }
   });
 
+  const fetchStaffDetails = async () => {
+    try {
+      const staffData = await fetchStaffRecords();
+      if (staffData.data === 'internal server error') {
+        toast.error('internal server error');
+      } else {
+        setStaff(staffData?.data);
+      }
+    } catch (error) {
+      toast.error('something went wrong');
+    }
+  };
+
+  useEffect(() => {
+    fetchStaffDetails();
+  }, []);
+
+  const handleStaffChange = (event) => {
+    setSelectedStaff(event.target.value);
+    formik.setFieldValue('staff', event.target.value);
+  };
+
   return (
     <div>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="scroll-dialog-title" aria-describedby="scroll-dialog-description">
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+      >
         <DialogTitle id="scroll-dialog-title" style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="h3" style={{ marginLeft: '180px' }}>
             Add New Payroll
@@ -76,23 +108,24 @@ const PayrollData = (props) => {
                   <FormControl fullWidth>
                     <FormLabel>Staff</FormLabel>
                     <Select
-                      labelId="demo-simple-select-label"
                       id="staff"
                       name="staff"
                       label=""
                       size="small"
                       fullWidth
-                      value={formik.values.staff || null}
-                      onChange={formik.handleChange}
+                      value={selectedStaff}
+                      onChange={handleStaffChange}
                       error={formik.touched.staff && Boolean(formik.errors.staff)}
                       helperText={formik.touched.staff && formik.errors.staff}
                     >
-                      <MenuItem value="ASSU">ASSU</MenuItem>
-                      <MenuItem value="AMAN">AMAN </MenuItem>
-                      <MenuItem value="HARSHIT">HARSHIT </MenuItem>
-                      <MenuItem value="MOHIT">MOHIT </MenuItem>
+                      {staff &&
+                        staff.map((staffMember) => (
+                          <MenuItem key={staffMember?._id} value={staffMember?._id}>
+                            {staffMember?.name}
+                          </MenuItem>
+                        ))}
                     </Select>
-                    <FormHelperText style={{ color: Palette.error.main }}>{formik.touched.staff && formik.errors.staff}</FormHelperText>
+                    <FormHelperText error>{formik.errors.staff}</FormHelperText>
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
@@ -101,6 +134,7 @@ const PayrollData = (props) => {
                     id="salary"
                     name="salary"
                     size="small"
+                    type="number"
                     fullWidth
                     value={formik.values.salary}
                     onChange={formik.handleChange}
@@ -125,15 +159,15 @@ const PayrollData = (props) => {
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Tax Deducted at Source (TDS) </FormLabel>
                   <TextField
-                    id="Tax"
-                    name="Tax"
+                    id="tds"
+                    name="tds"
                     size="small"
                     type="number"
                     fullWidth
-                    value={formik.values.Tax}
+                    value={formik.values.tds}
                     onChange={formik.handleChange}
-                    error={formik.touched.Tax && Boolean(formik.errors.Tax)}
-                    helperText={formik.touched.Tax && formik.errors.Tax}
+                    error={formik.touched.tds && Boolean(formik.errors.tds)}
+                    helperText={formik.touched.tds && formik.errors.tds}
                   />
                 </Grid>
               </Grid>

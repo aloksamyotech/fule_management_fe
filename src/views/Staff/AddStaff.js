@@ -13,81 +13,52 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
-// import { useEffect, useState } from 'react';
-
-// import { apiget, apipost } from '../../service/api';
 import Palette from '../../ui-component/ThemePalette';
+import { getAllStaffDetails, saveStaffDetails } from './staffApi';
 
 const AddPolicy = (props) => {
-  const { open, handleClose } = props;
+  const { open, handleClose , getStaff } = props;
 
-  //   const [contactList, setContactList] = useState([]);
-  //   const userid = localStorage.getItem('user_id');
-  //   const userRole = localStorage.getItem('userRole');
 
-  // -----------  validationSchema
   const validationSchema = yup.object({
     designation: yup.string().required('Designation Type is required'),
     name: yup.string().required('Name is required'),
     address: yup.string().required('address is required'),
     qualification: yup.string().required('Qualification is required'),
-    phoneNumber: yup
+    phone: yup
       .string()
       .matches(/^[0-9]{10}$/, 'Phone number is invalid')
       .required('Phone number is required'),
-    emailAddress: yup.string().email('Invalid email').required('Email is required')
+    email: yup.string().email('Invalid email').required('Email is required')
   });
 
-  // -----------   initialValues
   const initialValues = {
     designation: '',
     name: '',
-    phoneNumber: '',
-    emailAddress: '',
+    phone: '',
+    email: '',
     address: '',
     qualification: ''
-
-    // createdBy: userid,
-    // contact_id: _id,
-    // assigned_agent: userid
   };
 
-  // add policy api
-  //   const addPolicy = async (values) => {
-  //     const data = values;
-  //     const result = await apipost('policy/add', data);
-
-  //     setUserAction(result);
-
-  //     if (result && result.status === 201) {
-  //       toast.success(result.data.message);
-  //       formik.resetForm();
-  //       handleClose();
-  //     }
-  //   };
-
-  // formik
   const formik = useFormik({
     initialValues,
     validationSchema,
     onSubmit: async (values) => {
-      //   addPolicy(values);
       console.log('values', values);
-      toast.success('policy Add successfully');
-      handleClose();
-      formik.resetForm();
+      const data = await saveStaffDetails(values)
+      if (data.data == 'internal server error') {
+        toast.error(data.data)
+      } else {
+        await getStaff()
+        toast.success('policy Add successfully');
+        handleClose();
+        formik.resetForm();
+      }
+
     }
   });
 
-  //   const fetchdata = async () => {
-  //     const result = await apiget(userRole === 'admin' ? `contact/list` : `contact/list/?createdBy=${userid}`);
-  //     if (result && result.status === 200) {
-  //       setContactList(result?.data?.result);
-  //     }
-  //   };
-  //   useEffect(() => {
-  //     fetchdata();
-  //   }, []);
   return (
     <div>
       <Dialog open={open} onClose={handleClose} aria-labelledby="scroll-dialog-title" aria-describedby="scroll-dialog-description">
@@ -119,15 +90,15 @@ const AddPolicy = (props) => {
                       name="designation"
                       size="small"
                       fullWidth
-                      value={formik.values.designation || null}
+                      value={formik.values.designation || ''}
                       onChange={formik.handleChange}
                       error={formik.touched.designation && Boolean(formik.errors.designation)}
                       helperText={formik.touched.designation && formik.errors.designation}
                     >
                       <MenuItem value="Manager">Manager</MenuItem>
-                      <MenuItem value="Attendant">Attendant </MenuItem>
-                      <MenuItem value="Messenger">Messenger </MenuItem>
-                      <MenuItem value="Security">Security </MenuItem>
+                      <MenuItem value="Attendant">Attendant</MenuItem>
+                      <MenuItem value="Messenger">Messenger</MenuItem>
+                      <MenuItem value="Security">Security</MenuItem>
                     </Select>
                     <FormHelperText style={{ color: Palette.error.main }}>
                       {formik.touched.designation && formik.errors.designation}
@@ -150,28 +121,28 @@ const AddPolicy = (props) => {
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Phone Number</FormLabel>
                   <TextField
-                    name="phoneNumber"
+                    name="phone"
                     type="number"
                     size="small"
                     fullWidth
-                    value={formik.values.policyStartDate}
+                    value={formik.values.phone}
                     onChange={formik.handleChange}
-                    error={formik.touched.phoneNumber && Boolean(formik.errors.phoneNumber)}
-                    helperText={formik.touched.phoneNumber && formik.errors.phoneNumber}
+                    error={formik.touched.phone && Boolean(formik.errors.phone)}
+                    helperText={formik.touched.phone && formik.errors.phone}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
                   <FormLabel>Email</FormLabel>
                   <TextField
-                    id="emailAddress"
-                    name="emailAddress"
+                    id="email"
+                    name="email"
                     type="email"
                     size="small"
                     fullWidth
-                    value={formik.values.emailAddress}
+                    value={formik.values.email}
                     onChange={formik.handleChange}
-                    error={formik.touched.emailAddress && Boolean(formik.errors.emailAddress)}
-                    helperText={formik.touched.emailAddress && formik.errors.emailAddress}
+                    error={formik.touched.email && Boolean(formik.errors.email)}
+                    helperText={formik.touched.email && formik.errors.email}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6} md={6}>
@@ -197,14 +168,15 @@ const AddPolicy = (props) => {
                       name="qualification"
                       size="small"
                       fullWidth
-                      value={formik.values.qualification || null}
+                      value={formik.values.qualification || ''}
                       onChange={formik.handleChange}
                       error={formik.touched.qualification && Boolean(formik.errors.qualification)}
                       helperText={formik.touched.qualification && formik.errors.qualification}
                     >
-                      <MenuItem value="PHD Holder">PHD Holder</MenuItem>
-                      <MenuItem value="Degree Holder"> DegreeHolder</MenuItem>
-                      <MenuItem value="BSC Holder">BSC Holder </MenuItem>
+                      <MenuItem value="UNDER-GRADUATION">UNDER-GRADUATION</MenuItem>
+                      <MenuItem value="POST-GRADUATION">POST-GRADUATION</MenuItem>
+                      <MenuItem value="MASTERS">MASTERS</MenuItem>
+                      <MenuItem value="INTER">INTER</MenuItem>
                     </Select>
                     <FormHelperText style={{ color: Palette.error.main }}>
                       {formik.touched.qualification && formik.errors.qualification}

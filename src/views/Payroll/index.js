@@ -11,6 +11,9 @@ import ViewPayrollHistory from './ViewPayroll';
 import { IconButton } from '@mui/material';
 import ViewIcon from '@mui/icons-material/Visibility';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { fetchPayrollRecords } from './payrollApi';
 // ----------------------------------------------------------------------
 
 const documentData = [
@@ -26,6 +29,7 @@ const documentData = [
 ];
 const Documents = () => {
   const [openAdd, setOpenAdd] = useState(false);
+  const [payroll , setPayroll] = useState([])
   const columns = [
     {
       field: 'name',
@@ -67,8 +71,36 @@ const Documents = () => {
       )
     }
   ];
+  const fetchPayrollDetails = async () => {
+    try {
+      const response = await fetchPayrollRecords();
+      console.log(response)
+      if (response?.data === 'internal server error') {
+        toast.error('internal server error');
+      } else {
+
+        const data = response.data.map((item) => {
+          return {
+            name: item?.name,
+            position: item?.designation,
+            qualification: item?.qualification,
+            salary: item?.salary,
+            joinDate : item?.created_at,
+            id : item?._id
+          };
+        });
+        setPayroll(data);
+      }
+    } catch (error) {
+      toast.error('something went wrong');
+    }
+  };
   const handleOpenAdd = () => setOpenAdd(true);
   const handleCloseAdd = () => setOpenAdd(false);
+
+  useEffect(() => {
+    fetchPayrollDetails()
+  }, []);
   return (
     <>
       <PayrollData open={openAdd} handleClose={handleCloseAdd} />
@@ -85,9 +117,9 @@ const Documents = () => {
           <Box width="100%">
             <Card style={{ height: '600px', paddingTop: '15px' }}>
               <DataGrid
-                rows={documentData}
+                rows={payroll}
                 columns={columns}
-                getRowId={(row) => row.id}
+                getRowId={payroll.id}
                 slots={{ toolbar: GridToolbar }}
                 slotProps={{ toolbar: { showQuickFilter: true } }}
               />
