@@ -16,7 +16,9 @@ import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
 
 // chart data
-import chartData from './chart-data/total-growth-bar-chart';
+import chart from './chart-data/total-growth-bar-chart';
+import axios from 'axios';
+import { apiurls } from 'Service/api';
 
 const status = [
   {
@@ -36,6 +38,8 @@ const status = [
 // ==============================|| DASHBOARD DEFAULT - TOTAL GROWTH BAR CHART ||============================== //
 
 const TotalGrowthBarChart = ({ isLoading }) => {
+  const [chartData, setChartData] = useState(chart)
+  const [total, setTotal] = useState(chart)
   const [value, setValue] = useState('today');
   const theme = useTheme();
   const customization = useSelector((state) => state.customization);
@@ -51,8 +55,22 @@ const TotalGrowthBarChart = ({ isLoading }) => {
   const secondaryMain = theme.palette.secondary.main;
   const secondaryLight = theme.palette.secondary.light;
 
-  useEffect(() => {
-    const newChartData = {
+  const updateUrl = async (e) => {
+    setValue(e.target.value)
+    await fetchDataAndUpdateChart(e.target.value)
+  }
+
+  const fetchDataAndUpdateChart = async (time_para) => {
+    let time = time_para
+    if (!time) {
+      time = "today"
+    }
+    const response = await axios.get(`${apiurls.salesReport + time}`);
+    const responseData = response.data;
+    setTotal(responseData?.total)
+    console.log(responseData)
+    const newData = [responseData?.diesel, responseData?.petrol, responseData?.gas, responseData?.carosene]
+    let newChartData = {
       ...chartData.options,
       colors: [primary200, primaryDark, secondaryMain, secondaryLight],
       xaxis: {
@@ -82,10 +100,19 @@ const TotalGrowthBarChart = ({ isLoading }) => {
       }
     };
 
-    // do not load chart when loading
+
+    let check = chart
+    check.series[0].data = newData
+
     if (!isLoading) {
       ApexCharts.exec(`bar-chart`, 'updateOptions', newChartData);
     }
+
+  }
+
+
+  useEffect(() => {
+    fetchDataAndUpdateChart()
   }, [navType, primary200, primaryDark, secondaryMain, secondaryLight, primary, darkLight, grey200, isLoading, grey500]);
 
   return (
@@ -100,15 +127,15 @@ const TotalGrowthBarChart = ({ isLoading }) => {
                 <Grid item>
                   <Grid container direction="column" spacing={1}>
                     <Grid item>
-                      <Typography variant="subtitle2">Total Growth</Typography>
+                      <Typography variant="subtitle2">Total Sales</Typography>
                     </Grid>
                     <Grid item>
-                      <Typography variant="h3">$2,324.00</Typography>
+                      <Typography variant="h3">{'Rs. ' + total}</Typography>
                     </Grid>
                   </Grid>
                 </Grid>
                 <Grid item>
-                  <TextField id="standard-select-currency" select value={value} onChange={(e) => setValue(e.target.value)}>
+                  <TextField id="standard-select-currency" select value={value} onChange={(e) => updateUrl(e)}>
                     {status.map((option) => (
                       <MenuItem key={option.value} value={option.value}>
                         {option.label}
@@ -119,7 +146,10 @@ const TotalGrowthBarChart = ({ isLoading }) => {
               </Grid>
             </Grid>
             <Grid item xs={12}>
-              <Chart {...chartData} />
+              {
+                chartData && <Chart {...chartData} />
+
+              }
             </Grid>
           </Grid>
         </MainCard>
