@@ -18,27 +18,30 @@ const AddLead = (props) => {
 
   const [fuelData, setFuelData] = useState([]);
   const [supplierData, setSupplierData] = useState([]);
+  const [pumpData, setPumpData] = useState([]);
 
   const validationSchema = yup.object({
     fuel: yup.string().required('Fuel Type is required'),
     supplier: yup.string().required('Supplier Name is required'),
     cost: yup.string().required('Cost is required'),
-    liters: yup.string().required('Liters is required')
+    liters: yup.string().required('Liters is required'),
+    pump: yup.string().required('Pump is required'),
   });
 
   const initialValues = {
     fuel: '',
     supplier: '',
     cost: '',
-    liters: ''
+    liters: '',
+    pump: ''
   };
 
   const formik = useFormik({
     initialValues,
-    // validationSchema,
+    validationSchema,
     onSubmit: async (values) => {
       console.log('Form submitted with values: ', values);
-// You can perform further actions here, such as sending the form data to a server
+      
     }
   });
 
@@ -71,9 +74,32 @@ const AddLead = (props) => {
     }
   };
 
+  // Fetch pump data or use dummy data
+  const fetchPumpData = async () => {
+
+    try {
+      const response = await axios.get(apiurls?.getPump);
+      const data = response.data.map((item) => ({
+        name: item?.code,
+        id: item?._id
+      }));
+      const dummyPumps = [
+        { name: 'Pump 1', id: '1' },
+        { name: 'Pump 2', id: '2' },
+        { name: 'Pump 3', id: '3' }
+      ];
+      setPumpData(data);
+    } catch (error) {
+      console.log(error)
+    }
+    // Dummy pump data
+
+  };
+
   useEffect(() => {
     fetchFuelData();
     fetchSupplierData();
+    fetchPumpData();
   }, []);
 
   return (
@@ -110,7 +136,7 @@ const AddLead = (props) => {
                     >
                       {fuelData &&
                         fuelData.map((item) => (
-                          <MenuItem key={item.id} value={item.name}>
+                          <MenuItem key={item.id} value={item.id}>
                             {item.name}
                           </MenuItem>
                         ))}
@@ -132,7 +158,7 @@ const AddLead = (props) => {
                   >
                     {supplierData &&
                       supplierData.map((item) => (
-                        <MenuItem key={item.id} value={item.supplier}>
+                        <MenuItem key={item.id} value={item.id}>
                           {item.supplier}
                         </MenuItem>
                       ))}
@@ -166,6 +192,27 @@ const AddLead = (props) => {
                     error={formik.touched.cost && Boolean(formik.errors.cost)}
                   />
                   <FormHelperText error>{formik.errors.cost}</FormHelperText>
+                </Grid>
+                <Grid item xs={12} sm={6} md={6}>
+                  <FormLabel>Pump</FormLabel>
+                  <Select
+                    id="pump"
+                    name="pump"
+                    label=""
+                    size="small"
+                    fullWidth
+                    value={formik.values.pump}
+                    onChange={formik.handleChange}
+                    error={formik.touched.pump && Boolean(formik.errors.pump)}
+                  >
+                    {pumpData &&
+                      pumpData.map((item) => (
+                        <MenuItem key={item.id} value={item.id}>
+                          {item.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  <FormHelperText error>{formik.errors.pump}</FormHelperText>
                 </Grid>
               </Grid>
             </DialogContentText>

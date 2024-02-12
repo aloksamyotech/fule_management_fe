@@ -31,7 +31,6 @@ const SalesData = (props) => {
   // -----------  validationSchema
   const validationSchema = yup.object({
     liter: yup.string().required('Liter is required'),
-    amount: yup.string().required('Amount is required'),
     pump: yup.string().required('Pump is required'),
     fuel: yup.string().required('Fuel is required'),
     staff: yup.string().required('Staff is required')
