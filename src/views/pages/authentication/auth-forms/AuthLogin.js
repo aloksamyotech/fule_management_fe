@@ -66,15 +66,17 @@ const FirebaseLogin = ({ ...others }) => {
       const loginResponse = await axios.post(apiurls?.userLogin, data);
       console.log('======================================>>>>', loginResponse);
 
-      if (loginResponse.data === 'internal server error') {
+      if (loginResponse?.data === 'internal server error') {
         toast.error('Something Went Wrong', { autoClose: 600 });
       } else {
-        if (loginResponse.data == 'user not found') {
+        if (loginResponse?.data == 'user not found') {
           toast.error('user does not exist', { autoClose: 600 });
-        } else if (loginResponse.data == 'incorrect password') {
-          toast.error(loginResponse.data, { autoClose: 600 });
+        } else if (loginResponse?.data == 'incorrect password') {
+          toast.error(loginResponse?.data, { autoClose: 600 });
         } else {
           toast.success('Data saved successfully', { autoClose: 60 });
+          localStorage.setItem('user', JSON.stringify(loginResponse?.data));
+          console.log('ndvijdsbisidfb');
           navigate('/dashboard/default');
         }
       }

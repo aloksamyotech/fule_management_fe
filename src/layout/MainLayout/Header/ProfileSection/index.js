@@ -56,6 +56,7 @@ const ProfileSection = () => {
    * */
   const anchorRef = useRef(null);
   const handleLogout = async () => {
+    localStorage.setItem('user', JSON.stringify(null));
     navigate('/pages/login/login3');
   };
 
