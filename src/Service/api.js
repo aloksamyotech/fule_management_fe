@@ -40,7 +40,7 @@ export const apiurls = {
   //Sales Api
   addSales: pmsUrl + 'add/sales',
   getSales: pmsUrl + 'sales/get/all',
-  salesReport : pmsUrl + 'sales/report/',
+  salesReport: pmsUrl + 'sales/report/',
 
   //Supplier Api
   addSupplier: pmsUrl + 'supplier/details',
@@ -55,4 +55,5 @@ export const apiurls = {
   // updateUser: pmsUrl + 'user/login',
   userLogin: pmsUrl + 'user/login',
   userSignup: pmsUrl + 'user/add',
+  userUpdate: pmsUrl + 'user/details/upadate'
 };

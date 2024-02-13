@@ -76,7 +76,6 @@ const FirebaseLogin = ({ ...others }) => {
         } else {
           toast.success('Data saved successfully', { autoClose: 60 });
           localStorage.setItem('user', JSON.stringify(loginResponse?.data));
-          console.log('ndvijdsbisidfb');
           navigate('/dashboard/default');
         }
       }

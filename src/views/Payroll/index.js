@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { fetchPayrollRecords } from './payrollApi';
+import moment from 'moment';
 // ----------------------------------------------------------------------
 
 const Documents = () => {
@@ -22,20 +23,9 @@ const Documents = () => {
   const columns = [
     {
       field: 'name',
-      headerName: 'NAME',
+      headerName: 'STAFF NAME',
       flex: 1,
       cellClassName: ' name-column--cell--capitalize'
-    },
-    {
-      field: 'position',
-      headerName: 'POSITION ',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize'
-    },
-    {
-      field: 'qualification',
-      headerName: 'QUALIFICATION',
-      flex: 1
     },
     {
       field: 'salary',
@@ -43,22 +33,33 @@ const Documents = () => {
       flex: 1
     },
     {
-      field: 'joinDate',
-      headerName: 'JOIN DATE',
+      field: 'allowances',
+      headerName: 'ALLOWANCE ',
+      flex: 1,
+      cellClassName: 'name-column--cell--capitalize'
+    },
+    {
+      field: 'tds',
+      headerName: 'TDS',
       flex: 1
     },
     {
-      field: 'action',
-      headerName: 'ACTION',
-      flex: 1,
-      renderCell: () => (
-        <div>
-          <IconButton component={Link} to="/ping/payrollData" color="primary">
-            <ViewIcon />
-          </IconButton>
-        </div>
-      )
+      field: 'joinDate',
+      headerName: 'JOIN DATE',
+      flex: 1
     }
+    // {
+    //   field: 'action',
+    //   headerName: 'ACTION',
+    //   flex: 1,
+    //   renderCell: () => (
+    //     <div>
+    //       <IconButton component={Link} to="/ping/payrollData" color="primary">
+    //         <ViewIcon />
+    //       </IconButton>
+    //     </div>
+    //   )
+    // }
   ];
   const fetchPayrollDetails = async () => {
     try {
@@ -70,10 +71,10 @@ const Documents = () => {
         const data = response.data.map((item) => {
           return {
             name: item?.staff.full_name,
-            position: item?.allowances,
-            qualification: item?.tds,
+            allowances: item?.allowances,
+            tds: item?.tds,
             salary: item?.basic_salary,
-            joinDate: item?.created_at,
+            joinDate: moment(item?.created_at).format('YYYY-MM-DD HH:mm:ss'),
             id: item?._id
           };
         });

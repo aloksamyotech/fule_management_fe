@@ -69,7 +69,7 @@ const Fuel = () => {
                 rows={fuelData && fuelData}
                 columns={[
                   { field: 'name', headerName: 'FUEL TYPE', flex: 1, cellClassName: 'name-column--cell' },
-                  { field: 'qty', headerName: 'AVAILABLE LITERS', flex: 1, cellClassName: 'name-column--cell' },
+                  // { field: 'qty', headerName: 'AVAILABLE LITERS', flex: 1, cellClassName: 'name-column--cell' },
                   { field: 'status', headerName: 'STATUS', flex: 1, cellClassName: 'name-column--cell' }
                 ]}
                 getRowId={(row) => row.id}

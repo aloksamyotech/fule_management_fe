@@ -15,6 +15,7 @@ import { apiurls } from 'Service/api';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
 import ViewDuty from './ViewDuty/index';
+import moment from 'moment';
 // ----------------------------------------------------------------------
 
 const MainDuty = () => {
@@ -33,6 +34,7 @@ const MainDuty = () => {
           fuel: item?.fuel.fuel_type,
           pumpNo: item?.pump.code,
           price: item?.fuel.liter_price,
+          date: moment(item?.created_at).format('YYYY-MM-DD HH:mm:ss'),
           id: item?._id
         };
       });
@@ -117,14 +119,9 @@ const MainDuty = () => {
                   //   flex: 1
                   // },
                   {
-                    field: 'edit',
-                    headerName: 'EDIT',
-                    flex: 1,
-                    renderCell: (params) => (
-                      <IconButton color="primary">
-                        <EditIcon />
-                      </IconButton>
-                    )
+                    field: 'date',
+                    headerName: 'DATE',
+                    flex: 1
                   }
                 ]}
                 getRowId={(row) => row.id}

@@ -19,10 +19,11 @@ const Profile = () => {
   const formik = useFormik({
     initialValues,
     validationSchema,
+    enableReinitialize: true,
     onSubmit: async (values) => {
       try {
-        // Assuming apiurls?.updateUser is the correct URL for your update API
-        await axios.patch(apiurls?.updateUser, values);
+        await axios.patch(apiurls?.userUpdate, values);
+        console.log(values);
         alert('User data updated successfully');
       } catch (error) {
         console.error('Error updating user data:', error);

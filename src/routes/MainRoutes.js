@@ -19,7 +19,7 @@ const SupplierManagement = Loadable(lazy(() => import('views/Supplier')));
 const ViewSupplierDetails = Loadable(lazy(() => import('views/Supplier/ViewSupplier')));
 const CreditorsDetails = Loadable(lazy(() => import('views/Creditors')));
 const CreditorsHistory = Loadable(lazy(() => import('views/Creditors/ViewCreditor')));
-const SettingDetails = Loadable(lazy(() => import('views/Setting/index')));
+// const SettingDetails = Loadable(lazy(() => import('views/Setting/index')));
 const SalesManagement = Loadable(lazy(() => import('views/SalesSupport')));
 
 // ==============================|| MAIN ROUTING ||============================== //
@@ -167,15 +167,15 @@ const MainRoutes = {
         }
       ]
     },
-    {
-      path: 'hrms',
-      children: [
-        {
-          path: 'setting',
-          element: <SettingDetails />
-        }
-      ]
-    },
+    // {
+    //   path: 'hrms',
+    //   children: [
+    //     {
+    //       path: 'setting',
+    //       element: <SettingDetails />
+    //     }
+    //   ]
+    // },
     {
       path: 'managment',
       children: [

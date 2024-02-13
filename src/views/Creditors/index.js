@@ -88,22 +88,22 @@ const CreditorData = () => {
                     field: 'client',
                     headerName: 'CLIENT',
                     flex: 1
-                  },
-                  {
-                    field: 'action',
-                    headerName: 'ACTION',
-                    flex: 1,
-                    renderCell: (params) => (
-                      <div>
-                        <IconButton color="primary" onClick={() => handleEdit(params.row.id)}>
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </div>
-                    )
                   }
+                  // {
+                  //   field: 'action',
+                  //   headerName: 'ACTION',
+                  //   flex: 1,
+                  //   renderCell: (params) => (
+                  //     <div>
+                  //       <IconButton color="primary" onClick={() => handleEdit(params.row.id)}>
+                  //         <EditIcon />
+                  //       </IconButton>
+                  //       <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
+                  //         <DeleteIcon />
+                  //       </IconButton>
+                  //     </div>
+                  //   )
+                  // }
                 ]}
                 getRowId={(row) => row.id}
                 slots={{ toolbar: GridToolbar }}

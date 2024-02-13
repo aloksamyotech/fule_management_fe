@@ -7,6 +7,7 @@ import TableStyle from '../../ui-component/TableStyle';
 import SalesData from './AddSales';
 import { apiurls } from 'Service/api';
 import axios from 'axios';
+import moment from 'moment';
 
 const SalesManagement = () => {
   const [openAdd, setOpenAdd] = useState(false);
@@ -23,7 +24,7 @@ const SalesManagement = () => {
           attendant: item?.staff.designation,
           fuel: item?.fuel.fuel_type,
           pump: item?.pump.code,
-          date: item?.created_at,
+          date: moment(item?.created_at).format('YYYY-MM-DD HH:mm:ss'),
           priceL: item?.fuel.liter_price,
           litersSold: item?.liter,
           totalAmount: item?.fuel.liter_price * item.liter,

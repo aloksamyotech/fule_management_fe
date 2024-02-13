@@ -52,22 +52,22 @@ const StaffManagement = () => {
       field: 'position',
       headerName: 'POSITION',
       flex: 1
-    },
-    {
-      field: 'action',
-      headerName: 'ACTION ',
-      flex: 1,
-      renderCell: (params) => (
-        <div>
-          <IconButton color="primary" onClick={() => handleEdit(params.row.id)}>
-            <EditIcon />
-          </IconButton>
-          <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
-            <DeleteIcon />
-          </IconButton>
-        </div>
-      )
     }
+    // {
+    //   field: 'action',
+    //   headerName: 'ACTION ',
+    //   flex: 1,
+    //   renderCell: (params) => (
+    //     <div>
+    //       <IconButton color="primary" onClick={() => handleEdit(params.row.id)}>
+    //         <EditIcon />
+    //       </IconButton>
+    //       <IconButton color="error" onClick={() => handleDelete(params.row.id)}>
+    //         <DeleteIcon />
+    //       </IconButton>
+    //     </div>
+    //   )
+    // }
   ];
 
   const handleOpenAdd = () => setOpenAdd(true);

@@ -12,6 +12,7 @@ import { IconButton } from '@mui/material';
 import { useEffect } from 'react';
 import { apiurls } from 'Service/api';
 import axios from 'axios';
+import moment from 'moment';
 // ----------------------------------------------------------------------
 
 const Pump = () => {
@@ -30,7 +31,7 @@ const Pump = () => {
           pumpDesc: item?.desc,
           status: item?.status,
           fuelType: item?.fuel.fuel_type,
-          date: item?.created_at,
+          date: moment(item?.created_at).format('YYYY-MM-DD HH:mm:ss'),
           id: item?._id
         };
       });
@@ -85,24 +86,24 @@ const Pump = () => {
                     headerName: 'DATE',
                     flex: 1,
                     cellClassName: 'name-column--cell--capitalize'
-                  },
+                  }
                   // {
                   //   field: 'status',
                   //   headerName: 'STATUS',
                   //   flex: 1,
                   //   cellClassName: 'name-column--cell--capitalize'
                   // },
-                  {
-                    field: 'action',
-                    headerName: 'ACTION',
-                    flex: 1,
-                    cellClassName: 'name-column--cell--capitalize',
-                    renderCell: (params) => (
-                      <IconButton color="primary">
-                        <EditIcon />
-                      </IconButton>
-                    )
-                  }
+                  // {
+                  //   field: 'action',
+                  //   headerName: 'ACTION',
+                  //   flex: 1,
+                  //   cellClassName: 'name-column--cell--capitalize',
+                  //   renderCell: (params) => (
+                  //     <IconButton color="primary">
+                  //       <EditIcon />
+                  //     </IconButton>
+                  //   )
+                  // }
                 ]}
                 getRowId={(row) => row.id}
                 slots={{ toolbar: GridToolbar }}

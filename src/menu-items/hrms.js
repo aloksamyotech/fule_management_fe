@@ -46,14 +46,14 @@ const hrms = {
       type: 'item',
       url: '/hrms/cred',
       icon: icons.IconCreditCardFilled
-    },
-    {
-      id: 'setting',
-      title: 'Setting',
-      type: 'item',
-      url: '/hrms/setting',
-      icon: icons.IconSettingsCog
     }
+    // {
+    //   id: 'setting',
+    //   title: 'Setting',
+    //   type: 'item',
+    //   url: '/hrms/setting',
+    //   icon: icons.IconSettingsCog
+    // }
   ]
 };
 

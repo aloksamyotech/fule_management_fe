@@ -95,19 +95,19 @@ const StaffManagement = () => {
                     field: 'status',
                     headerName: 'STATUS',
                     flex: 1
-                  },
-                  {
-                    field: 'action',
-                    headerName: 'ACTION ',
-                    flex: 1,
-                    renderCell: (params) => (
-                      <div>
-                        <IconButton color="primary" onClick={() => handleEdit(params.row.id)}>
-                          <EditIcon />
-                        </IconButton>
-                      </div>
-                    )
                   }
+                  // {
+                  //   field: 'action',
+                  //   headerName: 'ACTION ',
+                  //   flex: 1,
+                  //   renderCell: (params) => (
+                  //     <div>
+                  //       <IconButton color="primary" onClick={() => handleEdit(params.row.id)}>
+                  //         <EditIcon />
+                  //       </IconButton>
+                  //     </div>
+                  //   )
+                  // }
                 ]}
                 getRowId={(row) => row.id}
                 slots={{ toolbar: GridToolbar }}

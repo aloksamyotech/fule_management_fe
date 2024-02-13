@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react';
+import moment from 'moment';
 // @mui
 import { Stack, Button, Container, Typography, Box, Card } from '@mui/material';
 import TableStyle from '../../ui-component/TableStyle';
@@ -28,7 +29,7 @@ const SavingData = () => {
           bankDesc: item?.bank,
           status: item?.status,
           shortNote: item?.note,
-          date: item?.created_at,
+          date: moment(item?.created_at).format('YYYY-MM-DD HH:mm:ss'),
           id: item?._id
         };
       });
