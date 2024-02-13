@@ -12,10 +12,10 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
 import { apiurls } from 'Service/api';
+import { toast } from 'react-toastify';
 
 const AddLead = (props) => {
   const { open, handleClose } = props;
-
   const [fuelData, setFuelData] = useState([]);
   const [supplierData, setSupplierData] = useState([]);
   const [pumpData, setPumpData] = useState([]);
@@ -25,7 +25,7 @@ const AddLead = (props) => {
     supplier: yup.string().required('Supplier Name is required'),
     cost: yup.string().required('Cost is required'),
     liters: yup.string().required('Liters is required'),
-    pump: yup.string().required('Pump is required'),
+    pump: yup.string().required('Pump is required')
   });
 
   const initialValues = {
@@ -41,7 +41,17 @@ const AddLead = (props) => {
     validationSchema,
     onSubmit: async (values) => {
       console.log('Form submitted with values: ', values);
-      
+      try {
+        const response = await axios.post(apiurls?.addOrder, values);
+
+        console.log('API response:', response.data);
+        toast.success('Order added successfully', { autoClose: 600 });
+        formik.resetForm();
+        handleClose();
+      } catch (error) {
+        console.error('Error adding order:', error);
+        toast.error('Failed to add Order', { autoClose: 600 });
+      }
     }
   });
 
@@ -76,7 +86,6 @@ const AddLead = (props) => {
 
   // Fetch pump data or use dummy data
   const fetchPumpData = async () => {
-
     try {
       const response = await axios.get(apiurls?.getPump);
       const data = response.data.map((item) => ({
@@ -90,10 +99,9 @@ const AddLead = (props) => {
       ];
       setPumpData(data);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
     // Dummy pump data
-
   };
 
   useEffect(() => {

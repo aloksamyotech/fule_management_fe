@@ -24,6 +24,7 @@ const Pump = () => {
   const fetchPumpData = async () => {
     try {
       const response = await axios.get(apiurls?.getPump);
+      console.log('response=====>>>>>', response);
       console.log(response);
       const data = response.data.map((item) => {
         return {
@@ -31,6 +32,8 @@ const Pump = () => {
           pumpDesc: item?.desc,
           status: item?.status,
           fuelType: item?.fuel.fuel_type,
+          avl_qty: item?.avl_qty,
+
           date: moment(item?.created_at).format('YYYY-MM-DD HH:mm:ss'),
           id: item?._id
         };
@@ -72,6 +75,12 @@ const Pump = () => {
                   {
                     field: 'pumpDesc',
                     headerName: 'PUMP DESC',
+                    flex: 1,
+                    cellClassName: 'name-column--cell--capitalize'
+                  },
+                  {
+                    field: 'avl_qty',
+                    headerName: 'AVAILABLE QTY ',
                     flex: 1,
                     cellClassName: 'name-column--cell--capitalize'
                   },

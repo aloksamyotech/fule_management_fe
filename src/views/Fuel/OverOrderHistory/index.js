@@ -29,82 +29,40 @@ import ClearIcon from '@mui/icons-material/Clear';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
-
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import TableStyle from '../../../ui-component/TableStyle';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { apiurls } from 'Service/api';
+import axios from 'axios';
+import moment from 'moment';
 
 const ViewOrderHistory = () => {
-  const validationSchema = yup.object({
-    // Your validation schema here
-  });
+  const [orderData, setOrderData] = useState([]);
 
-  const initialValues = {
-    // Your initial values here
+  const fetchOrderData = async () => {
+    try {
+      const response = await axios.get(apiurls?.getOrder);
+      console.log(response);
+      const data = response.data.map((item) => {
+        return {
+          fuelType: item?.fuel.fuel_type,
+          totalLitersSupplied: item?.liters,
+          cost: item?.cost,
+          supplier: item?.supplier.name,
+          pump: item?.pump.code,
+          date: moment(item?.created_at).format('YYYY-MM-DD HH:mm:ss'),
+          id: item?._id
+        };
+      });
+      setOrderData(data);
+    } catch (error) {
+      console.error('Error fetching fuel data:', error);
+    }
   };
-
-  const formik = useFormik({
-    initialValues,
-    validationSchema,
-    onSubmit: async (values) => {
-      console.log('leadValues', values);
-      toast.success('Lead added successfully');
-    }
-  });
-
-  const fuelData = [
-    {
-      id: 1,
-      fuelType: 'Petrol',
-      totalLitersSupplied: '1,930.00 Liters',
-      cost: '40,000,.00',
-      supplier: 'Adeola',
-      date: 'Wed 2nd March, 2022'
-    }
-  ];
-
-  const columns = [
-    {
-      field: 'fuelType',
-      headerName: 'FUEL TYPE',
-      flex: 1,
-      cellClassName: 'name-column--cell name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'totalLitersSupplied',
-      headerName: 'TOTAL LITERS SUPPLIED',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'cost',
-      headerName: 'COST',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'supplier',
-      headerName: 'SUPPLIER',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    },
-    {
-      field: 'date',
-      headerName: 'DATE',
-      flex: 1,
-      cellClassName: 'name-column--cell--capitalize',
-      headerAlign: 'center',
-      align: 'center'
-    }
-  ];
+  useEffect(() => {
+    fetchOrderData();
+  }, []);
 
   return (
     <div>
@@ -124,8 +82,57 @@ const ViewOrderHistory = () => {
             <Box width="100%">
               <Card style={{ height: '600px', paddingTop: '15px' }}>
                 <DataGrid
-                  rows={fuelData}
-                  columns={columns}
+                  rows={orderData && orderData}
+                  columns={[
+                    {
+                      field: 'fuelType',
+                      headerName: 'FUEL TYPE',
+                      flex: 1,
+                      cellClassName: 'name-column--cell name-column--cell--capitalize',
+                      headerAlign: 'center',
+                      align: 'center'
+                    },
+                    {
+                      field: 'totalLitersSupplied',
+                      headerName: 'TOTAL LITERS SUPPLIED',
+                      flex: 1,
+                      cellClassName: 'name-column--cell--capitalize',
+                      headerAlign: 'center',
+                      align: 'center'
+                    },
+                    {
+                      field: 'cost',
+                      headerName: 'COST',
+                      flex: 1,
+                      cellClassName: 'name-column--cell--capitalize',
+                      headerAlign: 'center',
+                      align: 'center'
+                    },
+                    {
+                      field: 'supplier',
+                      headerName: 'SUPPLIER',
+                      flex: 1,
+                      cellClassName: 'name-column--cell--capitalize',
+                      headerAlign: 'center',
+                      align: 'center'
+                    },
+                    {
+                      field: 'pump',
+                      headerName: 'PUMP',
+                      flex: 1,
+                      cellClassName: 'name-column--cell--capitalize',
+                      headerAlign: 'center',
+                      align: 'center'
+                    },
+                    {
+                      field: 'date',
+                      headerName: 'DATE',
+                      flex: 1,
+                      cellClassName: 'name-column--cell--capitalize',
+                      headerAlign: 'center',
+                      align: 'center'
+                    }
+                  ]}
                   getRowId={(row) => row.id}
                   slots={{ toolbar: GridToolbar }}
                   slotProps={{ toolbar: { showQuickFilter: true } }}

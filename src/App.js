@@ -11,15 +11,14 @@ import PageRoutes from 'routes';
 // defaultTheme
 import themes from 'themes';
 // project imports
-
+import NavigationScroll from 'layout/NavigationScroll';
 import { useEffect } from 'react';
 import { useState } from 'react';
-const data = JSON.parse(localStorage.getItem('user'));
 
 // ==============================|| APP ||============================== //
 const App = () => {
   const customization = useSelector((state) => state.customization);
-  const [user, setUser] = useState(data);
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
 
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem('user'));

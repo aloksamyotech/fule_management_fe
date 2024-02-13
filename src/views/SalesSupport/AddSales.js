@@ -53,10 +53,12 @@ const SalesData = (props) => {
       console.log(values);
       try {
         const response = await axios.post(apiurls?.addSales, values);
-
+        console.log(response);
         console.log('API response:', response.data);
         if (response.data == 'internal server error') {
           toast.error('Something Went Wrong', { autoClose: 600 });
+        } else if (response.data == 'fuel not available') {
+          toast.error('No Enough Fuel ');
         } else {
           toast.success('data saved successfully', { autoClose: 600 });
           formik.resetForm();
@@ -186,7 +188,7 @@ const SalesData = (props) => {
               </Grid>
               <Grid item xs={12} sm={6} md={6}>
                 <FormControl fullWidth>
-                  <FormLabel>PUMP</FormLabel>
+                  <FormLabel>EMPLOYEE</FormLabel>
                   <Select
                     id="staff"
                     name="staff"

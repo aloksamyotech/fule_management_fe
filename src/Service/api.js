@@ -9,6 +9,7 @@ export const apiurls = {
 
   //Order Api
   addOrder: pmsUrl + 'order/details',
+  getOrder: pmsUrl + 'order/getAllDetails',
 
   //Staff Api
 

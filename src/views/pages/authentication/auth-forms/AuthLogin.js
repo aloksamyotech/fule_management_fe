@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 // material-ui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -74,9 +74,9 @@ const FirebaseLogin = ({ ...others }) => {
         } else if (loginResponse?.data == 'incorrect password') {
           toast.error(loginResponse?.data, { autoClose: 600 });
         } else {
-          toast.success('Data saved successfully', { autoClose: 60 });
           localStorage.setItem('user', JSON.stringify(loginResponse?.data));
           navigate('/dashboard/default');
+          toast.success('Data saved successfully', { autoClose: 60 });
         }
       }
     } catch (error) {

@@ -21,7 +21,7 @@ const SalesManagement = () => {
       console.log(response);
       const data = response.data.map((item) => {
         return {
-          attendant: item?.staff.designation,
+          attendant: item?.staff.full_name,
           fuel: item?.fuel.fuel_type,
           pump: item?.pump.code,
           date: moment(item?.created_at).format('YYYY-MM-DD HH:mm:ss'),
